@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   EncarCar,
-  convertPriceToEur,
+  getTotalPrice,
   formatEur,
   formatMileage,
   getImageUrl,
@@ -11,6 +11,7 @@ import {
   translateModel,
   translateBadge,
   translateKorean,
+  TRANSPORT_COST,
 } from "@/lib/encar";
 import PhotoGallery from "@/components/PhotoGallery";
 
@@ -158,7 +159,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
   const options = carsData?.base?.options?.standard || [];
   const detailPhotos = carsData?.base?.photos || [];
 
-  const eurPrice = convertPriceToEur(car.Price);
+  const { carPrice, transport, total } = getTotalPrice(car.Price);
   const carName = `${translateManufacturer(car.Manufacturer)} ${translateModel(car.Model)}`;
   const gradeName = category?.gradeEnglishName || `${translateBadge(car.Badge || "")} ${translateBadge(car.BadgeDetail || "")}`;
 
@@ -192,7 +193,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
   const color = colorMap[spec?.colorName] || translateKorean(spec?.colorName || "");
 
   const whatsappMessage = encodeURIComponent(
-    `Pershendetje! Jam i interesuar per: ${carName} ${car.FormYear}, ${formatMileage(car.Mileage)}, Cmimi: ${formatEur(eurPrice)}. A mund te me jepni me shume informata?`
+    `Pershendetje! Jam i interesuar per: ${carName} ${car.FormYear}, ${formatMileage(car.Mileage)}, Cmimi: ${formatEur(total)}. A mund te me jepni me shume informata?`
   );
 
   return (
@@ -420,12 +421,19 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               <p className="text-gray-500 text-sm mb-4">{gradeName}</p>
 
               <div className="bg-blue-50 rounded-xl p-5 mb-6">
-                <div className="text-sm text-blue-600 font-medium mb-1">Cmimi</div>
+                <div className="text-sm text-blue-600 font-medium mb-1">Cmimi total</div>
                 <div className="text-4xl font-bold text-blue-700">
-                  {formatEur(eurPrice)}
+                  {formatEur(total)}
                 </div>
-                <div className="text-xs text-blue-500 mt-1">
-                  Perfshire 10% marzhen e sherbimit
+                <div className="mt-3 space-y-1 text-sm">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Cmimi i vetures</span>
+                    <span>{formatEur(carPrice)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Transporti (Korea → Durres)</span>
+                    <span>{formatEur(transport)}</span>
+                  </div>
                 </div>
               </div>
 

@@ -87,8 +87,8 @@ export default async function Home() {
               <div className="text-sm text-gray-500 mt-1">Marka te ndryshme</div>
             </div>
             <div>
-              <div className="text-3xl md:text-4xl font-bold text-blue-600">10%</div>
-              <div className="text-sm text-gray-500 mt-1">Marzha jone e ulte</div>
+              <div className="text-3xl md:text-4xl font-bold text-blue-600">1,500€</div>
+              <div className="text-sm text-gray-500 mt-1">Transport i perfshire</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold text-blue-600">3-5</div>
@@ -203,7 +203,7 @@ export default async function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Cmime transparente</h3>
               <p className="text-gray-600">
-                Vetem 10% marzhe mbi cmimin e tregut korean. Pa kosto te fshehura, pa surpriza.
+                Cmimi perfundimtar perfshine veturen + transportin deri ne Durres. Pa kosto te fshehura.
               </p>
             </div>
             <div className="text-center p-6">

@@ -31,13 +31,19 @@ export interface EncarSearchResult {
 }
 
 // KRW to EUR exchange rate (approximate, updated periodically)
-const KRW_TO_EUR = 0.00067; // ~1 EUR = 1,490 KRW
-const MARKUP = 1.10; // 10% profit margin
+const KRW_TO_EUR = 0.000573; // ~1 EUR = 1,744 KRW (March 2026)
+const MARKUP = 1.05; // 5% profit margin
+export const TRANSPORT_COST = 1500; // Transport Korea → Durres/Prishtine
 
 export function convertPriceToEur(priceInManWon: number): number {
   const krw = priceInManWon * 10000;
   const eur = krw * KRW_TO_EUR * MARKUP;
   return Math.round(eur);
+}
+
+export function getTotalPrice(priceInManWon: number): { carPrice: number; transport: number; total: number } {
+  const carPrice = convertPriceToEur(priceInManWon);
+  return { carPrice, transport: TRANSPORT_COST, total: carPrice + TRANSPORT_COST };
 }
 
 export function formatEur(eur: number): string {

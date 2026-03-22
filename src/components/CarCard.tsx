@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   EncarCar,
-  convertPriceToEur,
+  getTotalPrice,
   formatEur,
   formatMileage,
   getMainImageUrl,
@@ -17,7 +17,7 @@ interface CarCardProps {
 }
 
 export default function CarCard({ car }: CarCardProps) {
-  const eurPrice = convertPriceToEur(car.Price);
+  const { total } = getTotalPrice(car.Price);
   const imageUrl = getMainImageUrl(car);
 
   return (
@@ -82,10 +82,10 @@ export default function CarCard({ car }: CarCardProps) {
         {/* Price */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <span className="text-2xl font-bold text-blue-600">
-            {formatEur(eurPrice)}
+            {formatEur(total)}
           </span>
           <span className="text-xs text-gray-400">
-            Cmimi perfundimtar
+            Me transport
           </span>
         </div>
       </div>
