@@ -33,7 +33,7 @@ export default function Header() {
               Ofertat
             </Link>
             <a
-              href="https://wa.me/38344123456"
+              href="https://wa.me/38344647559"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
@@ -87,7 +87,7 @@ export default function Header() {
                 Ofertat
               </Link>
               <a
-                href="https://wa.me/38344123456"
+                href="https://wa.me/38344647559"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-green-500 text-white py-2 px-3 rounded-lg font-medium text-center"

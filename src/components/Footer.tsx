@@ -55,7 +55,7 @@ export default function Footer() {
             <h3 className="font-semibold text-lg mb-4">Na ndiqni</h3>
             <div className="flex flex-col gap-3">
               <a
-                href="https://wa.me/38344123456"
+                href="https://wa.me/38344647559"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-gray-400 hover:text-green-400 transition-colors"

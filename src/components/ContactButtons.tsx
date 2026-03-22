@@ -24,7 +24,7 @@ export default function ContactButtons({ carName }: ContactButtonsProps) {
           <div className="flex flex-col gap-2 mb-2 animate-fade-in">
             {/* WhatsApp */}
             <a
-              href={`https://wa.me/38344123456?text=${encodedMessage}`}
+              href={`https://wa.me/38344647559?text=${encodedMessage}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full shadow-lg transition-all hover:scale-105"

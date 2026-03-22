@@ -59,7 +59,7 @@ export default async function Home() {
                 Shiko Veturat
               </Link>
               <a
-                href="https://wa.me/38344123456"
+                href="https://wa.me/38344647559"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:scale-105 text-center flex items-center justify-center gap-2 shadow-lg shadow-green-500/30"
@@ -238,7 +238,7 @@ export default async function Home() {
               Eksploro Katalogun
             </Link>
             <a
-              href="https://wa.me/38344123456"
+              href="https://wa.me/38344647559"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-2"

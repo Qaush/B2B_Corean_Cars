@@ -466,7 +466,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               {/* Contact buttons */}
               <div className="space-y-3">
                 <a
-                  href={`https://wa.me/38344123456?text=${whatsappMessage}`}
+                  href={`https://wa.me/38344647559?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
