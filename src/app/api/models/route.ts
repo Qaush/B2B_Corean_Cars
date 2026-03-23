@@ -52,15 +52,18 @@ export async function GET(request: NextRequest) {
     for (const node of nodes) {
       if (node.Name === "Metadata" || node.Name === "Hidden" || node.Name === "CarType") continue;
 
-      // Check direct facets
+      // Check direct facets (non-selected items)
       if (node.Facets && node.Facets.length > 0) {
-        result[node.Name] = node.Facets
-          .filter((f: any) => f.Count > 0 && f.Value !== "N" && f.Value !== "Y")
-          .map((f: any) => ({ value: f.Value, count: f.Count }))
-          .sort((a: any, b: any) => b.count - a.count);
+        const directFacets = node.Facets
+          .filter((f: any) => f.Count > 0 && f.Value !== "N" && f.Value !== "Y" && !f.IsSelected);
+        if (directFacets.length > 0) {
+          result[node.Name] = directFacets
+            .map((f: any) => ({ value: f.Value, count: f.Count }))
+            .sort((a: any, b: any) => b.count - a.count);
+        }
       }
 
-      // Check refinement facets (nested inside selected facets)
+      // Check refinement facets (nested inside selected facets, e.g., Manufacturer > ModelGroup)
       if (node.Facets) {
         for (const facet of node.Facets) {
           if (facet.Refinements?.Nodes) {

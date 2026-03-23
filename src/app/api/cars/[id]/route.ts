@@ -38,60 +38,109 @@ export async function GET(
     return NextResponse.json({ error: "Car not found" }, { status: 404 });
   }
 
-  // Fetch detailed info by scraping the detail page's __PRELOADED_STATE__
+  // Fetch all data in parallel: detail page + accident + inspection + diagnosis
+  const [detailResult, accidentResult, inspectionResult, diagnosisResult] = await Promise.allSettled([
+    // Detail page scrape
+    fetch(`https://fem.encar.com/cars/detail/${carId}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+      },
+      next: { revalidate: 300 },
+    }),
+    // Accident/Insurance summary
+    fetch(`https://api.encar.com/v1/readside/record/vehicle/${carId}/summary`, {
+      headers: HEADERS,
+      next: { revalidate: 300 },
+    }),
+    // Inspection summary
+    fetch(`https://api.encar.com/v1/readside/inspection/vehicle/${carId}/summary`, {
+      headers: HEADERS,
+      next: { revalidate: 300 },
+    }),
+    // Diagnosis
+    fetch(`https://api.encar.com/v1/readside/diagnosis/vehicle/${carId}`, {
+      headers: HEADERS,
+      next: { revalidate: 300 },
+    }),
+  ]);
+
+  // Parse detail page
   let detail = null;
   let debugInfo: any = {};
-  try {
-    const pageRes = await fetch(
-      `https://fem.encar.com/cars/detail/${carId}`,
-      {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
-        },
-        next: { revalidate: 300 },
-      }
-    );
+  if (detailResult.status === "fulfilled") {
+    const pageRes = detailResult.value;
     debugInfo.status = pageRes.status;
-    debugInfo.contentType = pageRes.headers.get("content-type");
     if (pageRes.ok) {
-      const html = await pageRes.text();
-      debugInfo.htmlLength = html.length;
-      debugInfo.hasPreloaded = html.includes('__PRELOADED_STATE__');
-      debugInfo.htmlSnippet = html.substring(0, 300);
-
-      const stateStart = html.indexOf('__PRELOADED_STATE__');
-      debugInfo.stateStart = stateStart;
-      if (stateStart !== -1) {
-        // Get context around the match
-        debugInfo.context = html.substring(stateStart, stateStart + 100);
-        const eqSign = html.indexOf('=', stateStart);
-        if (eqSign !== -1) {
-          const jsonStart = html.indexOf('{', eqSign);
-          debugInfo.jsonStart_pos = jsonStart;
-          if (jsonStart !== -1) {
-            const scriptEnd = html.indexOf('</script>', jsonStart);
-            debugInfo.scriptEnd_pos = scriptEnd;
-            if (scriptEnd !== -1) {
-              let jsonStr = html.substring(jsonStart, scriptEnd).trim();
-              if (jsonStr.endsWith(';')) jsonStr = jsonStr.slice(0, -1);
-              debugInfo.jsonLength = jsonStr.length;
-              debugInfo.jsonPreview = jsonStr.substring(0, 200);
-              debugInfo.jsonEnd = jsonStr.substring(jsonStr.length - 50);
-              try {
+      try {
+        const html = await pageRes.text();
+        const stateStart = html.indexOf('__PRELOADED_STATE__');
+        if (stateStart !== -1) {
+          const eqSign = html.indexOf('=', stateStart);
+          if (eqSign !== -1) {
+            const jsonStart = html.indexOf('{', eqSign);
+            if (jsonStart !== -1) {
+              const scriptEnd = html.indexOf('</script>', jsonStart);
+              if (scriptEnd !== -1) {
+                let jsonStr = html.substring(jsonStart, scriptEnd).trim();
+                if (jsonStr.endsWith(';')) jsonStr = jsonStr.slice(0, -1);
                 detail = JSON.parse(jsonStr);
-              } catch (e: any) {
-                debugInfo.parseError = e.message;
               }
             }
           }
         }
+      } catch (e: any) {
+        debugInfo.parseError = e.message;
       }
     }
-  } catch (e: any) {
-    debugInfo.fetchError = e.message;
   }
 
-  return NextResponse.json({ car, detail, debugInfo });
+  // Parse accident summary
+  let accidentSummary = null;
+  if (accidentResult.status === "fulfilled" && accidentResult.value.ok) {
+    try { accidentSummary = await accidentResult.value.json(); } catch {}
+  }
+
+  // Parse inspection summary
+  let inspectionSummary = null;
+  if (inspectionResult.status === "fulfilled" && inspectionResult.value.ok) {
+    try { inspectionSummary = await inspectionResult.value.json(); } catch {}
+  }
+
+  // Parse diagnosis
+  let diagnosis = null;
+  if (diagnosisResult.status === "fulfilled" && diagnosisResult.value.ok) {
+    try { diagnosis = await diagnosisResult.value.json(); } catch {}
+  }
+
+  // For DUPLICATION cars, report APIs may 404 with the listing ID.
+  // Try to find the original car ID from photo paths and retry.
+  if (!accidentSummary || !inspectionSummary || !diagnosis) {
+    const photos = detail?.cars?.base?.photos || [];
+    const photoPath = photos[0]?.path || "";
+    const origMatch = photoPath.match(/\/pic\d+\/(\d+)_/);
+    const origId = origMatch?.[1];
+    if (origId && origId !== carId) {
+      const retries = await Promise.allSettled([
+        !accidentSummary ? fetch(`https://api.encar.com/v1/readside/record/vehicle/${origId}/summary`, { headers: HEADERS, next: { revalidate: 300 } }) : Promise.resolve(null),
+        !inspectionSummary ? fetch(`https://api.encar.com/v1/readside/inspection/vehicle/${origId}/summary`, { headers: HEADERS, next: { revalidate: 300 } }) : Promise.resolve(null),
+        !diagnosis ? fetch(`https://api.encar.com/v1/readside/diagnosis/vehicle/${origId}`, { headers: HEADERS, next: { revalidate: 300 } }) : Promise.resolve(null),
+      ]);
+      if (!accidentSummary && retries[0].status === "fulfilled") {
+        const res = retries[0].value;
+        if (res && 'ok' in res && res.ok) { try { accidentSummary = await res.json(); } catch {} }
+      }
+      if (!inspectionSummary && retries[1].status === "fulfilled") {
+        const res = retries[1].value;
+        if (res && 'ok' in res && res.ok) { try { inspectionSummary = await res.json(); } catch {} }
+      }
+      if (!diagnosis && retries[2].status === "fulfilled") {
+        const res = retries[2].value;
+        if (res && 'ok' in res && res.ok) { try { diagnosis = await res.json(); } catch {} }
+      }
+    }
+  }
+
+  return NextResponse.json({ car, detail, accidentSummary, inspectionSummary, diagnosis, debugInfo });
 }

@@ -314,6 +314,67 @@ const MODEL_TRANSLATIONS: Record<string, string> = {
   "GLS클래스": "GLS-Class", "GL클래스": "GL-Class",
   "SL클래스": "SL-Class", "SLK클래스": "SLK-Class",
   "AMG GT": "AMG GT", "마이바흐": "Maybach",
+  // Volkswagen
+  "티구안": "Tiguan", "골프": "Golf", "아테온": "Arteon", "제타": "Jetta",
+  "파사트": "Passat", "투아렉": "Touareg", "비틀": "Beetle", "티록": "T-Roc",
+  "시로코": "Scirocco", "폴로": "Polo", "페이톤": "Phaeton", "아틀라스": "Atlas",
+  "기타": "Other", "업": "Up!", "리알타": "Rialta", "벤토": "Vento",
+  "사란": "Sharan", "코라도": "Corrado", "트랜스포터": "Transporter",
+  "마이크로버스": "Microbus", "멀티밴": "Multivan", "보라": "Bora",
+  // Volvo
+  "XC90": "XC90", "XC60": "XC60", "XC40": "XC40",
+  "S90": "S90", "S60": "S60", "V90": "V90", "V60": "V60", "V40": "V40",
+  "C40": "C40", "C30": "C30", "EX30": "EX30", "EX90": "EX90",
+  // Audi
+  "A3": "A3", "A4": "A4", "A5": "A5", "A6": "A6", "A7": "A7", "A8": "A8",
+  "Q2": "Q2", "Q3": "Q3", "Q4": "Q4", "Q5": "Q5", "Q7": "Q7", "Q8": "Q8",
+  "TT": "TT", "R8": "R8", "e-트론": "e-tron", "e-트론 GT": "e-tron GT",
+  // Porsche
+  "카이엔": "Cayenne", "마칸": "Macan", "파나메라": "Panamera",
+  "타이칸": "Taycan", "박스터": "Boxster", "카이맨": "Cayman",
+  // Land Rover
+  "레인지로버": "Range Rover", "디스커버리": "Discovery", "디펜더": "Defender",
+  "이보크": "Evoque", "벨라": "Velar", "프리랜더": "Freelander",
+  "레인지로버 스포츠": "Range Rover Sport",
+  // Jaguar
+  "XE": "XE", "XF": "XF", "XJ": "XJ", "F-PACE": "F-PACE",
+  "E-PACE": "E-PACE", "I-PACE": "I-PACE", "F-TYPE": "F-TYPE",
+  // Ford
+  "익스플로러": "Explorer", "머스탱": "Mustang", "브롱코": "Bronco",
+  "이스케이프": "Escape", "엣지": "Edge", "토러스": "Taurus",
+  "포커스": "Focus", "퓨전": "Fusion",
+  // Jeep
+  "그랜드체로키": "Grand Cherokee", "체로키": "Cherokee",
+  "랭글러": "Wrangler", "컴패스": "Compass", "레니게이드": "Renegade",
+  "글래디에이터": "Gladiator",
+  // Tesla
+  "모델3": "Model 3", "모델Y": "Model Y", "모델S": "Model S", "모델X": "Model X",
+  // Toyota
+  "캠리": "Camry", "라브4": "RAV4", "프리우스": "Prius", "하이랜더": "Highlander",
+  "시에나": "Sienna", "수프라": "Supra", "크라운": "Crown",
+  "랜드크루저": "Land Cruiser", "아발론": "Avalon",
+  // Lexus
+  "ES": "ES", "RX": "RX", "NX": "NX", "UX": "UX", "IS": "IS",
+  "LS": "LS", "GX": "GX", "LX": "LX", "LC": "LC", "RC": "RC",
+  // Honda
+  "어코드": "Accord", "시빅": "Civic", "CR-V": "CR-V", "HR-V": "HR-V",
+  "파일럿": "Pilot", "오딧세이": "Odyssey",
+  // MINI
+  "쿠퍼": "Cooper", "컨트리맨": "Countryman", "클럽맨": "Clubman",
+  "페이스맨": "Paceman",
+  // Peugeot
+  "3008": "3008", "5008": "5008", "2008": "2008", "308": "308", "508": "508",
+  // Lincoln
+  "에비에이터": "Aviator", "노틸러스": "Nautilus", "커세어": "Corsair",
+  "네비게이터": "Navigator", "컨티넨탈": "Continental", "MKZ": "MKZ",
+  // Cadillac
+  "에스컬레이드": "Escalade", "CT5": "CT5", "CT4": "CT4", "XT5": "XT5",
+  "XT4": "XT4", "XT6": "XT6", "리릭": "LYRIQ",
+  // Nissan
+  "알티마": "Altima", "맥시마": "Maxima", "로그": "Rogue",
+  "무라노": "Murano", "패스파인더": "Pathfinder",
+  // Infiniti
+  "Q50": "Q50", "Q60": "Q60", "QX50": "QX50", "QX60": "QX60", "QX80": "QX80",
 };
 
 // Common Korean words found in badge/trim descriptions
@@ -491,4 +552,103 @@ export function buildSearchQuery(filters: {
   }
 
   return `(And.${conditions.join("._.")}.)`;
+}
+
+// --- Inspection / Diagnosis translations ---
+
+const DIAGNOSIS_PART_NAMES: Record<string, string> = {
+  HOOD: "Kapaku",
+  FRONT_FENDER_LEFT: "Krahori i perp. majtas",
+  FRONT_FENDER_RIGHT: "Krahori i perp. djathtas",
+  FRONT_DOOR_LEFT: "Dera e perp. majtas",
+  FRONT_DOOR_RIGHT: "Dera e perp. djathtas",
+  BACK_DOOR_LEFT: "Dera e pasme majtas",
+  BACK_DOOR_RIGHT: "Dera e pasme djathtas",
+  TRUNK_LID: "Kapaku i bagazhit",
+  ROOF_PANEL: "Paneli i catise",
+  QUARTER_PANEL_LEFT: "Paneli i pasem majtas",
+  QUARTER_PANEL_RIGHT: "Paneli i pasem djathtas",
+  SIDE_SILL_LEFT: "Pragu majtas",
+  SIDE_SILL_RIGHT: "Pragu djathtas",
+  FRONT_PANEL: "Paneli i perp.",
+  CROSS_MEMBER: "Traversa",
+  INSIDE_PANEL_LEFT: "Paneli i brendshem majtas",
+  INSIDE_PANEL_RIGHT: "Paneli i brendshem djathtas",
+  REAR_PANEL: "Paneli i pasem",
+  TRUNK_FLOOR: "Dyshemeja e bagazhit",
+  FRONT_SIDE_MEMBER_LEFT: "Shasia e perp. majtas",
+  FRONT_SIDE_MEMBER_RIGHT: "Shasia e perp. djathtas",
+  REAR_SIDE_MEMBER_LEFT: "Shasia e pasme majtas",
+  REAR_SIDE_MEMBER_RIGHT: "Shasia e pasme djathtas",
+  FRONT_WHEEL_HOUSE_LEFT: "Arku i rrotes perp. majtas",
+  FRONT_WHEEL_HOUSE_RIGHT: "Arku i rrotes perp. djathtas",
+  REAR_WHEEL_HOUSE_LEFT: "Arku i rrotes pasme majtas",
+  REAR_WHEEL_HOUSE_RIGHT: "Arku i rrotes pasme djathtas",
+  PILLAR_A_LEFT: "Shtylla A majtas",
+  PILLAR_A_RIGHT: "Shtylla A djathtas",
+  PILLAR_B_LEFT: "Shtylla B majtas",
+  PILLAR_B_RIGHT: "Shtylla B djathtas",
+  PILLAR_C_LEFT: "Shtylla C majtas",
+  PILLAR_C_RIGHT: "Shtylla C djathtas",
+  PACKAGE_TRAY: "Rafti i pasem",
+  DASH_PANEL: "Paneli i instrumenteve",
+  FLOOR_PANEL: "Dyshemeja",
+  CHECKER_COMMENT: "Komenti i inspektorit",
+  OUTER_PANEL_COMMENT: "Komenti per panelet e jashtme",
+};
+
+const DIAGNOSIS_RESULT_CODES: Record<string, { label: string; color: string }> = {
+  NORMAL: { label: "Normal", color: "green" },
+  REPLACEMENT: { label: "Nderruar", color: "red" },
+  SHEET_METAL: { label: "Llamarine", color: "orange" },
+  CORROSION: { label: "Korrozion", color: "yellow" },
+  SCRATCH: { label: "Gervishje", color: "blue" },
+  UNEVEN: { label: "Siperfaqe e pabarabarte", color: "purple" },
+  DAMAGE: { label: "Demtim", color: "red" },
+};
+
+// Inspection outer part codes (from inspection summary)
+const INSPECTION_PART_CODES: Record<string, string> = {
+  P001: "Kapaku",
+  P002: "Krahori i perp. majtas",
+  P003: "Krahori i perp. djathtas",
+  P004: "Dera e perp. majtas",
+  P005: "Dera e perp. djathtas",
+  P006: "Dera e pasme majtas",
+  P007: "Dera e pasme djathtas",
+  P008: "Paneli i pasem majtas",
+  P009: "Paneli i pasem djathtas",
+  P010: "Pragu majtas",
+  P011: "Pragu djathtas",
+  P012: "Kapaku i bagazhit",
+  P013: "Paneli i catise",
+  P031: "Dera e perp. majtas",
+  P032: "Dera e perp. djathtas",
+  P033: "Dera e pasme majtas",
+  P034: "Dera e pasme djathtas",
+};
+
+const INSPECTION_STATUS_CODES: Record<string, { label: string; color: string; icon: string }> = {
+  X: { label: "Nderruar", color: "red", icon: "X" },
+  W: { label: "Llamarine/Saldim", color: "orange", icon: "W" },
+  C: { label: "Korrozion", color: "yellow", icon: "C" },
+  A: { label: "Gervishje", color: "blue", icon: "A" },
+  U: { label: "Siperfaqe e pabarabarte", color: "purple", icon: "U" },
+  T: { label: "Demtim", color: "red", icon: "T" },
+};
+
+export function translatePartName(name: string): string {
+  return DIAGNOSIS_PART_NAMES[name] || name;
+}
+
+export function translateResultCode(code: string): { label: string; color: string } {
+  return DIAGNOSIS_RESULT_CODES[code] || { label: code, color: "gray" };
+}
+
+export function translateInspectionPart(code: string): string {
+  return INSPECTION_PART_CODES[code] || code;
+}
+
+export function translateInspectionStatus(code: string): { label: string; color: string; icon: string } {
+  return INSPECTION_STATUS_CODES[code] || { label: code, color: "gray", icon: code };
 }

@@ -11,6 +11,10 @@ import {
   translateModel,
   translateBadge,
   translateKorean,
+  translatePartName,
+  translateResultCode,
+  translateInspectionPart,
+  translateInspectionStatus,
   TRANSPORT_COST,
 } from "@/lib/encar";
 import PhotoGallery from "@/components/PhotoGallery";
@@ -65,6 +69,9 @@ interface CarDetailPageProps {
 interface DetailData {
   car: EncarCar;
   detail: any;
+  accidentSummary: any;
+  inspectionSummary: any;
+  diagnosis: any;
 }
 
 const HEADERS = {
@@ -99,19 +106,34 @@ async function getCarData(id: string): Promise<DetailData | null> {
 
   if (!car) return null;
 
-  // Fetch detail page for rich data
-  let detail = null;
-  try {
-    const pageRes = await fetch(`https://fem.encar.com/cars/detail/${id}`, {
+  // Fetch all additional data in parallel
+  const [detailResult, accidentResult, inspectionResult, diagnosisResult] = await Promise.allSettled([
+    fetch(`https://fem.encar.com/cars/detail/${id}`, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
       },
       next: { revalidate: 300 },
-    });
-    if (pageRes.ok) {
-      const html = await pageRes.text();
+    }),
+    fetch(`https://api.encar.com/v1/readside/record/vehicle/${id}/summary`, {
+      headers: HEADERS,
+      next: { revalidate: 300 },
+    }),
+    fetch(`https://api.encar.com/v1/readside/inspection/vehicle/${id}/summary`, {
+      headers: HEADERS,
+      next: { revalidate: 300 },
+    }),
+    fetch(`https://api.encar.com/v1/readside/diagnosis/vehicle/${id}`, {
+      headers: HEADERS,
+      next: { revalidate: 300 },
+    }),
+  ]);
+
+  let detail = null;
+  if (detailResult.status === "fulfilled" && detailResult.value.ok) {
+    try {
+      const html = await detailResult.value.text();
       const stateStart = html.indexOf('__PRELOADED_STATE__');
       if (stateStart !== -1) {
         const eqSign = html.indexOf('=', stateStart);
@@ -120,13 +142,74 @@ async function getCarData(id: string): Promise<DetailData | null> {
         if (jsonStart !== -1 && scriptEnd !== -1) {
           let jsonStr = html.substring(jsonStart, scriptEnd).trim();
           if (jsonStr.endsWith(';')) jsonStr = jsonStr.slice(0, -1);
-          try { detail = JSON.parse(jsonStr); } catch {}
+          detail = JSON.parse(jsonStr);
         }
       }
-    }
-  } catch {}
+    } catch {}
+  }
 
-  return { car, detail };
+  let accidentSummary = null;
+  if (accidentResult.status === "fulfilled" && accidentResult.value.ok) {
+    try { accidentSummary = await accidentResult.value.json(); } catch {}
+  }
+
+  let inspectionSummary = null;
+  if (inspectionResult.status === "fulfilled" && inspectionResult.value.ok) {
+    try { inspectionSummary = await inspectionResult.value.json(); } catch {}
+  }
+
+  let diagnosis = null;
+  if (diagnosisResult.status === "fulfilled" && diagnosisResult.value.ok) {
+    try { diagnosis = await diagnosisResult.value.json(); } catch {}
+  }
+
+  // For DUPLICATION cars, report APIs may 404 with the listing ID.
+  // Try to find the original car ID from photo paths and retry.
+  let effectiveId = id;
+  if (!accidentSummary || !inspectionSummary || !diagnosis) {
+    const photos = detail?.cars?.base?.photos || [];
+    const photoPath = photos[0]?.path || "";
+    const origMatch = photoPath.match(/\/pic\d+\/(\d+)_/);
+    const origId = origMatch?.[1];
+    if (origId && origId !== id) {
+      effectiveId = origId;
+      const retries = await Promise.allSettled([
+        !accidentSummary ? fetch(`https://api.encar.com/v1/readside/record/vehicle/${origId}/summary`, { headers: HEADERS, next: { revalidate: 300 } }) : Promise.resolve(null),
+        !inspectionSummary ? fetch(`https://api.encar.com/v1/readside/inspection/vehicle/${origId}/summary`, { headers: HEADERS, next: { revalidate: 300 } }) : Promise.resolve(null),
+        !diagnosis ? fetch(`https://api.encar.com/v1/readside/diagnosis/vehicle/${origId}`, { headers: HEADERS, next: { revalidate: 300 } }) : Promise.resolve(null),
+      ]);
+      if (!accidentSummary && retries[0].status === "fulfilled") {
+        const res = retries[0].value;
+        if (res && 'ok' in res && res.ok) { try { accidentSummary = await res.json(); } catch {} }
+      }
+      if (!inspectionSummary && retries[1].status === "fulfilled") {
+        const res = retries[1].value;
+        if (res && 'ok' in res && res.ok) { try { inspectionSummary = await res.json(); } catch {} }
+      }
+      if (!diagnosis && retries[2].status === "fulfilled") {
+        const res = retries[2].value;
+        if (res && 'ok' in res && res.ok) { try { diagnosis = await res.json(); } catch {} }
+      }
+    }
+  }
+
+  // Fetch detailed accident data with costs using the 'open' endpoint
+  if (accidentSummary?.carNo) {
+    try {
+      const openRes = await fetch(
+        `https://api.encar.com/v1/readside/record/vehicle/${effectiveId}/open?vehicleNo=${encodeURIComponent(accidentSummary.carNo)}`,
+        { headers: HEADERS, next: { revalidate: 300 } }
+      );
+      if (openRes.ok) {
+        const openData = await openRes.json();
+        if (openData?.openData) {
+          accidentSummary = openData;
+        }
+      }
+    } catch {}
+  }
+
+  return { car, detail, accidentSummary, inspectionSummary, diagnosis };
 }
 
 export default async function CarDetailPage({ params }: CarDetailPageProps) {
@@ -149,7 +232,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
     );
   }
 
-  const { car, detail } = data;
+  const { car, detail, accidentSummary, inspectionSummary, diagnosis } = data;
   const carsData = detail?.cars;
   const category = carsData?.base?.category;
   const advertisement = carsData?.base?.advertisement;
@@ -259,32 +342,141 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             </div>
           )}
 
-          {/* Condition & Accident History */}
+          {/* Insurance / Accident History */}
           <div className="mt-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Gjendja e vetures</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Historiku i sigurimit & aksidenteve</h2>
             <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-              {/* Frame / Accident status */}
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  advertisement?.oneLineText?.includes("NO PIANT") || !condition?.accident
-                    ? "bg-green-100 text-green-600"
-                    : "bg-yellow-100 text-yellow-600"
-                }`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900">Historiku i aksidenteve</div>
-                  <div className="text-sm text-gray-600 mt-0.5">
-                    {advertisement?.oneLineText?.includes("NO PIANT")
-                      ? "Pa ngjyrosje, pa aksidente te raportuara"
-                      : condition?.accident?.recordView
-                      ? "Historiku i aksidenteve i disponueshem - shiko Encar per detaje"
-                      : "Nuk ka te dhena per aksidente"}
+              {accidentSummary ? (
+                <>
+                  {/* Accident counts */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className={`rounded-lg p-3 text-center ${
+                      accidentSummary.myAccidentCnt === 0 ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+                    }`}>
+                      <div className={`text-2xl font-bold ${accidentSummary.myAccidentCnt === 0 ? "text-green-600" : "text-red-600"}`}>
+                        {accidentSummary.myAccidentCnt}
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">Aksidente (dami im)</div>
+                      {accidentSummary.myAccidentCost > 0 && (
+                        <div className="text-xs font-semibold text-red-500 mt-0.5">
+                          ~{Math.round(accidentSummary.myAccidentCost * 0.000573).toLocaleString("de-DE")} €
+                        </div>
+                      )}
+                    </div>
+                    <div className={`rounded-lg p-3 text-center ${
+                      accidentSummary.otherAccidentCnt === 0 ? "bg-green-50 border border-green-200" : "bg-orange-50 border border-orange-200"
+                    }`}>
+                      <div className={`text-2xl font-bold ${accidentSummary.otherAccidentCnt === 0 ? "text-green-600" : "text-orange-600"}`}>
+                        {accidentSummary.otherAccidentCnt}
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">Aksidente (nga te tjeret)</div>
+                      {accidentSummary.otherAccidentCost > 0 && (
+                        <div className="text-xs font-semibold text-orange-500 mt-0.5">
+                          ~{Math.round(accidentSummary.otherAccidentCost * 0.000573).toLocaleString("de-DE")} €
+                        </div>
+                      )}
+                    </div>
+                    <div className="rounded-lg p-3 text-center bg-gray-50 border border-gray-200">
+                      <div className="text-2xl font-bold text-gray-700">{accidentSummary.ownerChangeCnt}</div>
+                      <div className="text-xs text-gray-600 mt-1">Ndryshime pronari</div>
+                    </div>
+                    <div className={`rounded-lg p-3 text-center ${
+                      accidentSummary.totalLossCnt === 0 && accidentSummary.floodTotalLossCnt === 0
+                        ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+                    }`}>
+                      <div className={`text-2xl font-bold ${
+                        accidentSummary.totalLossCnt === 0 && accidentSummary.floodTotalLossCnt === 0 ? "text-green-600" : "text-red-600"
+                      }`}>
+                        {accidentSummary.totalLossCnt + accidentSummary.floodTotalLossCnt}
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">Humbje totale / Permbytje</div>
+                    </div>
+                  </div>
+
+                  {/* Accident details list */}
+                  {accidentSummary.accidents && accidentSummary.accidents.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2 text-sm">Detajet e aksidenteve</h3>
+                      <div className="space-y-2">
+                        {accidentSummary.accidents.map((acc: any, idx: number) => {
+                          const totalKrw = (acc.partCost || 0) + (acc.laborCost || 0) + (acc.paintingCost || 0);
+                          const totalEur = Math.round(totalKrw * 0.000573);
+                          return (
+                            <div key={idx} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-gray-900">
+                                  {acc.type === "2" ? "Dami im" : acc.type === "3" ? "Dami nga te tjeret" : `Tipi ${acc.type}`}
+                                </span>
+                                <span className="text-xs text-gray-500">{acc.date}</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 text-xs">
+                                <div>
+                                  <span className="text-gray-500">Pjese</span>
+                                  <div className="font-medium">{Math.round((acc.partCost || 0) * 0.000573)} €</div>
+                                </div>
+                                <div>
+                                  <span className="text-gray-500">Punishtri</span>
+                                  <div className="font-medium">{Math.round((acc.laborCost || 0) * 0.000573)} €</div>
+                                </div>
+                                <div>
+                                  <span className="text-gray-500">Ngjyrosje</span>
+                                  <div className="font-medium">{Math.round((acc.paintingCost || 0) * 0.000573)} €</div>
+                                </div>
+                              </div>
+                              <div className="mt-2 pt-2 border-t border-gray-200 flex justify-between">
+                                <span className="text-xs font-semibold text-gray-700">Totali i riparimit</span>
+                                <span className="text-sm font-bold text-red-600">~{totalEur.toLocaleString("de-DE")} €</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Additional details */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">Regjistrimi i pare</span>
+                      <span className="font-medium text-gray-900">{accidentSummary.firstDate || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">Perdorimi</span>
+                      <span className="font-medium text-gray-900">{accidentSummary.use === "2" ? "Personal" : accidentSummary.use === "1" ? "Biznes" : "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">Vjedhje</span>
+                      <span className={`font-medium ${accidentSummary.robberCnt === 0 ? "text-green-600" : "text-red-600"}`}>
+                        {accidentSummary.robberCnt === 0 ? "Asnjehere" : `${accidentSummary.robberCnt} here`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="text-gray-600">Peng</span>
+                      <span className={`font-medium ${accidentSummary.loan === 0 ? "text-green-600" : "text-yellow-600"}`}>
+                        {accidentSummary.loan === 0 ? "Jo" : `${accidentSummary.loan} aktive`}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    advertisement?.oneLineText?.includes("NO PIANT") ? "bg-green-100 text-green-600" : "bg-yellow-100 text-yellow-600"
+                  }`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">Historiku i aksidenteve</div>
+                    <div className="text-sm text-gray-600 mt-0.5">
+                      {advertisement?.oneLineText?.includes("NO PIANT")
+                        ? "Pa ngjyrosje, pa aksidente te raportuara"
+                        : "Nuk ka te dhena per aksidente"}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Seizing / Pledge */}
               <div className="flex items-start gap-3">
@@ -305,23 +497,6 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                 </div>
               </div>
 
-              {/* Diagnosis */}
-              {advertisement?.diagnosisCar && (
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">Diagnostikuar nga Encar</div>
-                    <div className="text-sm text-gray-600 mt-0.5">
-                      Kjo veture eshte inspektuar dhe diagnostikuar nga Encar
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Seller note */}
               {advertisement?.oneLineText && (
                 <div className="flex items-start gap-3">
@@ -340,6 +515,117 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               )}
             </div>
           </div>
+
+          {/* Performance Check / Diagnosis */}
+          {(diagnosis || inspectionSummary) && (
+            <div className="mt-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Inspektimi i performances</h2>
+              <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
+                {/* Diagnosis items - panel check results */}
+                {diagnosis?.items && diagnosis.items.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Kontrolli i paneleve te jashtme</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {diagnosis.items
+                        .filter((item: any) => item.resultCode && item.resultCode !== null && item.name !== "CHECKER_COMMENT" && item.name !== "OUTER_PANEL_COMMENT")
+                        .map((item: any) => {
+                          const result = translateResultCode(item.resultCode);
+                          const colorClasses: Record<string, string> = {
+                            green: "bg-green-50 text-green-700 border-green-200",
+                            red: "bg-red-50 text-red-700 border-red-200",
+                            orange: "bg-orange-50 text-orange-700 border-orange-200",
+                            yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
+                            blue: "bg-blue-50 text-blue-700 border-blue-200",
+                            purple: "bg-purple-50 text-purple-700 border-purple-200",
+                            gray: "bg-gray-50 text-gray-700 border-gray-200",
+                          };
+                          return (
+                            <div key={item.code} className={`flex items-center justify-between px-3 py-2 rounded-lg border ${colorClasses[result.color] || colorClasses.gray}`}>
+                              <span className="text-sm">{translatePartName(item.name)}</span>
+                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                                item.resultCode === "NORMAL" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                              }`}>
+                                {result.label}
+                              </span>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Inspection summary - outer panel changes */}
+                {inspectionSummary?.outers && inspectionSummary.outers.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Ndryshimet e konstatuara</h3>
+                    <div className="space-y-2">
+                      {inspectionSummary.outers.map((outer: any, idx: number) => {
+                        const statuses = outer.statusTypes || [];
+                        return (
+                          <div key={idx} className="flex items-center justify-between bg-orange-50 border border-orange-200 rounded-lg px-4 py-3">
+                            <span className="text-sm font-medium text-gray-900">
+                              {translateInspectionPart(outer.type?.code) || translateKorean(outer.type?.title || "")}
+                            </span>
+                            <div className="flex gap-2">
+                              {statuses.map((s: any) => {
+                                const status = translateInspectionStatus(s.code);
+                                return (
+                                  <span key={s.code} className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                                    s.code === "X" ? "bg-red-100 text-red-800" :
+                                    s.code === "W" ? "bg-orange-100 text-orange-800" :
+                                    "bg-yellow-100 text-yellow-800"
+                                  }`}>
+                                    <span className="w-4 h-4 rounded-full bg-current opacity-20 flex items-center justify-center text-[10px]">
+                                      {status.icon}
+                                    </span>
+                                    {status.label}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Legend */}
+                    <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500">
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> X = Nderruar</span>
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> W = Llamarine/Saldim</span>
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span> C = Korrozion</span>
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> A = Gervishje</span>
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-purple-500 inline-block"></span> U = Siperfaqe e pabarabarte</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Diagnosis comments */}
+                {diagnosis?.items && (
+                  <>
+                    {diagnosis.items
+                      .filter((item: any) => item.name === "CHECKER_COMMENT" || item.name === "OUTER_PANEL_COMMENT")
+                      .map((item: any) => (
+                        <div key={item.code} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="font-semibold text-blue-900 text-sm mb-1">
+                            {translatePartName(item.name)}
+                          </div>
+                          <div className="text-sm text-blue-800">
+                            {translateKorean(item.result)}
+                          </div>
+                        </div>
+                      ))}
+                  </>
+                )}
+
+                {/* Inspector name */}
+                {inspectionSummary?.inspName && (
+                  <div className="text-xs text-gray-400 text-right">
+                    Inspektori: {inspectionSummary.inspName}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Warranty */}
           {warranty && (
