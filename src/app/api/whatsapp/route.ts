@@ -27,14 +27,6 @@ function isRateLimited(phoneNumber: string): boolean {
   return false;
 }
 
-// Clean up old rate limit entries every 30 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, val] of rateLimitMap) {
-    if (now > val.resetAt) rateLimitMap.delete(key);
-  }
-}, 1800_000);
-
 // --- Meta Signature Verification ---
 function verifySignature(rawBody: string, signature: string | null): boolean {
   if (!APP_SECRET) {
