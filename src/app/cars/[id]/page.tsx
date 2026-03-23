@@ -18,6 +18,7 @@ import {
   TRANSPORT_COST,
 } from "@/lib/encar";
 import PhotoGallery from "@/components/PhotoGallery";
+import CarBodyDiagram from "@/components/CarBodyDiagram";
 
 // Encar standard option codes mapping (Albanian)
 const OPTION_MAP: Record<string, string> = {
@@ -521,6 +522,9 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             <div className="mt-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Inspektimi i performances</h2>
               <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
+                {/* Car Body Diagram */}
+                <CarBodyDiagram diagnosisItems={diagnosis?.items} inspectionOuters={inspectionSummary?.outers} />
+
                 {/* Diagnosis items - panel check results */}
                 {diagnosis?.items && diagnosis.items.length > 0 && (
                   <div>
