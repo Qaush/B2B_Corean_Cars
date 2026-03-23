@@ -9,66 +9,53 @@ interface CarBodyDiagramProps {
 
 const PANEL_POSITIONS: Record<string, string> = {
   HOOD: "hood",
-  FRONT_FENDER_LEFT: "front-fender-left",
-  FRONT_FENDER_RIGHT: "front-fender-right",
-  FRONT_DOOR_LEFT: "front-door-left",
-  FRONT_DOOR_RIGHT: "front-door-right",
-  BACK_DOOR_LEFT: "back-door-left",
-  BACK_DOOR_RIGHT: "back-door-right",
+  FRONT_FENDER_LEFT: "fender-fl",
+  FRONT_FENDER_RIGHT: "fender-fr",
+  FRONT_DOOR_LEFT: "door-fl",
+  FRONT_DOOR_RIGHT: "door-fr",
+  BACK_DOOR_LEFT: "door-rl",
+  BACK_DOOR_RIGHT: "door-rr",
   TRUNK_LID: "trunk",
   ROOF_PANEL: "roof",
-  QUARTER_PANEL_LEFT: "quarter-left",
-  QUARTER_PANEL_RIGHT: "quarter-right",
-  SIDE_SILL_LEFT: "sill-left",
-  SIDE_SILL_RIGHT: "sill-right",
-  FRONT_PANEL: "front-panel",
-  REAR_PANEL: "rear-panel",
-  PILLAR_A_LEFT: "pillar-a-left",
-  PILLAR_A_RIGHT: "pillar-a-right",
-  PILLAR_B_LEFT: "pillar-b-left",
-  PILLAR_B_RIGHT: "pillar-b-right",
-  PILLAR_C_LEFT: "pillar-c-left",
-  PILLAR_C_RIGHT: "pillar-c-right",
+  QUARTER_PANEL_LEFT: "quarter-l",
+  QUARTER_PANEL_RIGHT: "quarter-r",
+  SIDE_SILL_LEFT: "sill-l",
+  SIDE_SILL_RIGHT: "sill-r",
+  FRONT_PANEL: "bumper-f",
+  REAR_PANEL: "bumper-r",
+  PILLAR_A_LEFT: "pillar-al",
+  PILLAR_A_RIGHT: "pillar-ar",
+  PILLAR_B_LEFT: "pillar-bl",
+  PILLAR_B_RIGHT: "pillar-br",
+  PILLAR_C_LEFT: "pillar-cl",
+  PILLAR_C_RIGHT: "pillar-cr",
 };
 
 const PANEL_LABELS: Record<string, string> = {
-  "hood": "Kapaku",
-  "front-fender-left": "Krahori i perp. majtas",
-  "front-fender-right": "Krahori i perp. djathtas",
-  "front-door-left": "Dera e perp. majtas",
-  "front-door-right": "Dera e perp. djathtas",
-  "back-door-left": "Dera e pasme majtas",
-  "back-door-right": "Dera e pasme djathtas",
-  "trunk": "Kapaku i bagazhit",
-  "roof": "Paneli i catise",
-  "quarter-left": "Paneli i pasem majtas",
-  "quarter-right": "Paneli i pasem djathtas",
-  "sill-left": "Pragu majtas",
-  "sill-right": "Pragu djathtas",
-  "front-panel": "Paneli i perp.",
-  "rear-panel": "Paneli i pasem",
-  "pillar-a-left": "Shtylla A majtas",
-  "pillar-a-right": "Shtylla A djathtas",
-  "pillar-b-left": "Shtylla B majtas",
-  "pillar-b-right": "Shtylla B djathtas",
-  "pillar-c-left": "Shtylla C majtas",
-  "pillar-c-right": "Shtylla C djathtas",
+  "hood": "Kapaku", "fender-fl": "Krahori i perp. majtas", "fender-fr": "Krahori i perp. djathtas",
+  "door-fl": "Dera e perp. majtas", "door-fr": "Dera e perp. djathtas",
+  "door-rl": "Dera e pasme majtas", "door-rr": "Dera e pasme djathtas",
+  "trunk": "Kapaku i bagazhit", "roof": "Paneli i catise",
+  "quarter-l": "Paneli i pasem majtas", "quarter-r": "Paneli i pasem djathtas",
+  "sill-l": "Pragu majtas", "sill-r": "Pragu djathtas",
+  "bumper-f": "Paneli i perp.", "bumper-r": "Paneli i pasem",
+  "pillar-al": "Shtylla A majtas", "pillar-ar": "Shtylla A djathtas",
+  "pillar-bl": "Shtylla B majtas", "pillar-br": "Shtylla B djathtas",
+  "pillar-cl": "Shtylla C majtas", "pillar-cr": "Shtylla C djathtas",
 };
 
-const STATUS_INFO: Record<string, { label: string; color: string; bgColor: string }> = {
-  NORMAL: { label: "Normal", color: "#16a34a", bgColor: "#dcfce7" },
-  REPLACEMENT: { label: "Nderruar", color: "#dc2626", bgColor: "#fee2e2" },
-  SHEET_METAL: { label: "Llamarine", color: "#ea580c", bgColor: "#ffedd5" },
-  CORROSION: { label: "Korrozion", color: "#ca8a04", bgColor: "#fef9c3" },
-  SCRATCH: { label: "Gervishje", color: "#2563eb", bgColor: "#dbeafe" },
-  UNEVEN: { label: "E pabarabarte", color: "#9333ea", bgColor: "#f3e8ff" },
-  DAMAGE: { label: "Demtim", color: "#dc2626", bgColor: "#fee2e2" },
+const STATUS_MARKER: Record<string, { letter: string; color: string; label: string }> = {
+  REPLACEMENT: { letter: "X", color: "#dc2626", label: "Nderruar" },
+  SHEET_METAL: { letter: "W", color: "#ea580c", label: "Llamarine/Saldim" },
+  CORROSION: { letter: "C", color: "#ca8a04", label: "Korrozion" },
+  SCRATCH: { letter: "A", color: "#2563eb", label: "Gervishje" },
+  UNEVEN: { letter: "U", color: "#7c3aed", label: "Siperfaqe e pabarabarte" },
+  DAMAGE: { letter: "T", color: "#dc2626", label: "Demtim" },
 };
 
-export default function CarBodyDiagram({ diagnosisItems, inspectionOuters }: CarBodyDiagramProps) {
-  const [selectedPanel, setSelectedPanel] = useState<string | null>(null);
+export default function CarBodyDiagram({ diagnosisItems }: CarBodyDiagramProps) {
+  const [selected, setSelected] = useState<string | null>(null);
 
-  // Build panel status map
   const panelStatus: Record<string, string> = {};
   if (diagnosisItems) {
     diagnosisItems.forEach((item: any) => {
@@ -83,422 +70,272 @@ export default function CarBodyDiagram({ diagnosisItems, inspectionOuters }: Car
   );
   if (!hasData) return null;
 
-  const hasIssues = Object.values(panelStatus).some(p => p !== "NORMAL");
-
   const isNormal = (id: string) => !panelStatus[id] || panelStatus[id] === "NORMAL";
   const getStatus = (id: string) => panelStatus[id] || "NORMAL";
 
-  // Panel fill: light gray for normal, light red tint for damaged
-  const panelFill = (id: string) => {
-    if (selectedPanel === id) return "#e0e7ff";
-    if (!panelStatus[id] || panelStatus[id] === "NORMAL") return "#f3f4f6";
-    return "#fef2f2";
+  // Marker positions for each panel (x, y in the SVG coordinate space)
+  const markerPos: Record<string, [number, number]> = {
+    "bumper-f": [250, 48], "hood": [250, 100], "fender-fl": [198, 100], "fender-fr": [302, 100],
+    "pillar-al": [198, 155], "pillar-ar": [302, 155],
+    "door-fl": [78, 155], "door-fr": [422, 155],
+    "roof": [250, 225], "sill-l": [190, 225], "sill-r": [310, 225],
+    "pillar-bl": [188, 240], "pillar-br": [312, 240],
+    "door-rl": [78, 290], "door-rr": [422, 290],
+    "pillar-cl": [198, 325], "pillar-cr": [302, 325],
+    "quarter-l": [198, 345], "quarter-r": [302, 345],
+    "trunk": [250, 370], "bumper-r": [250, 410],
   };
 
-  const panelStroke = (id: string) => {
-    if (selectedPanel === id) return "#4f46e5";
-    if (!panelStatus[id] || panelStatus[id] === "NORMAL") return "#d1d5db";
-    return "#fca5a5";
-  };
-
-  const panelStrokeWidth = (id: string) => selectedPanel === id ? "1.5" : "0.8";
-
-  // Render damage marker (red circle with X)
-  const DamageMarker = ({ x, y, panelId }: { x: number; y: number; panelId: string }) => {
-    if (isNormal(panelId)) return null;
-    const status = STATUS_INFO[getStatus(panelId)];
+  const Marker = ({ id }: { id: string }) => {
+    if (isNormal(id)) return null;
+    const pos = markerPos[id];
+    if (!pos) return null;
+    const info = STATUS_MARKER[getStatus(id)];
+    if (!info) return null;
     return (
-      <g>
-        <circle cx={x} cy={y} r="7" fill={status?.color || "#dc2626"} opacity="0.9" />
-        <text x={x} y={y + 1} textAnchor="middle" dominantBaseline="middle"
-          fill="white" fontSize="7" fontWeight="bold">
-          {getStatus(panelId) === "REPLACEMENT" ? "X" :
-           getStatus(panelId) === "SHEET_METAL" ? "W" :
-           getStatus(panelId) === "CORROSION" ? "C" :
-           getStatus(panelId) === "SCRATCH" ? "A" :
-           getStatus(panelId) === "UNEVEN" ? "U" : "!"}
-        </text>
+      <g className="cursor-pointer" onClick={() => setSelected(id)}>
+        <circle cx={pos[0]} cy={pos[1]} r="9" fill={info.color} />
+        <text x={pos[0]} y={pos[1] + 1} textAnchor="middle" dominantBaseline="middle"
+          fill="white" fontSize="9" fontWeight="bold">{info.letter}</text>
       </g>
     );
   };
 
-  const handleClick = (id: string) => {
-    setSelectedPanel(selectedPanel === id ? null : id);
-  };
-
-  const selectedInfo = selectedPanel ? {
-    label: PANEL_LABELS[selectedPanel] || selectedPanel,
-    status: STATUS_INFO[getStatus(selectedPanel)] || STATUS_INFO.NORMAL,
-    code: getStatus(selectedPanel),
+  const sel = selected && !isNormal(selected) ? {
+    label: PANEL_LABELS[selected],
+    ...STATUS_MARKER[getStatus(selected)],
   } : null;
 
   return (
     <div className="mb-5">
       <h3 className="font-semibold text-gray-900 mb-3">Diagrama e paneleve</h3>
       <div className="bg-white rounded-xl border border-gray-200 p-4">
-
-        {/* Selected panel info */}
-        {selectedInfo && (
-          <div className="mb-3 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm"
-            style={{ backgroundColor: selectedInfo.status.bgColor }}>
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: selectedInfo.status.color }}></span>
-            <span className="font-medium">{selectedInfo.label}</span>
-            <span className="text-gray-400">-</span>
-            <span style={{ color: selectedInfo.status.color }} className="font-semibold">{selectedInfo.status.label}</span>
+        {sel && (
+          <div className="mb-3 text-center">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
+              style={{ backgroundColor: sel.color + "15", color: sel.color, border: `1px solid ${sel.color}30` }}>
+              <span className="w-5 h-5 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
+                style={{ backgroundColor: sel.color }}>{sel.letter}</span>
+              <span className="font-medium">{sel.label}</span> - {sel.label}
+            </span>
           </div>
-        )}
-        {!selectedPanel && (
-          <div className="mb-3 text-center text-xs text-gray-400">Prekni nje panel per detaje</div>
         )}
 
         <div className="flex justify-center">
-          <svg viewBox="0 0 500 400" className="w-full max-w-[500px]" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 500 460" className="w-full max-w-[460px]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f9fafb" />
+                <stop offset="100%" stopColor="#f3f4f6" />
+              </linearGradient>
+              <linearGradient id="glassGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#e0e7ff" />
+                <stop offset="100%" stopColor="#c7d2fe" />
+              </linearGradient>
+            </defs>
 
-            {/* ===== LEFT SIDE VIEW (doors opened) ===== */}
-            <g transform="translate(30, 50)">
-              {/* Left front door - opened outward */}
-              <path
-                d="M0,60 L55,50 L55,155 L0,165 Z"
-                fill={panelFill("front-door-left")}
-                stroke={panelStroke("front-door-left")}
-                strokeWidth={panelStrokeWidth("front-door-left")}
-                className="cursor-pointer"
-                onClick={() => handleClick("front-door-left")}
-              />
-              {/* Window on door */}
-              <path d="M8,68 L50,60 L50,100 L8,106 Z" fill="#bfdbfe" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
-              {/* Door handle */}
-              <rect x="20" y="120" width="15" height="3" rx="1" fill="#9ca3af" />
-              <DamageMarker x={28} y={140} panelId="front-door-left" />
+            {/* ========= CENTER: CAR TOP VIEW ========= */}
+            <g>
+              {/* Car body outline - realistic sedan shape */}
+              <path d="M210,30 Q215,18 250,15 Q285,18 290,30 L295,55 L300,75 L305,110
+                L308,140 L310,175 L310,290 L308,330 L305,360 L300,390 L295,410
+                Q290,435 250,440 Q210,435 205,410 L200,390 L195,360 L192,330
+                L190,290 L190,175 L192,140 L195,110 L200,75 L205,55 Z"
+                fill="url(#bodyGrad)" stroke="#9ca3af" strokeWidth="1.2" />
 
-              {/* Left rear door - opened outward */}
-              <path
-                d="M0,175 L55,165 L55,270 L0,280 Z"
-                fill={panelFill("back-door-left")}
-                stroke={panelStroke("back-door-left")}
-                strokeWidth={panelStrokeWidth("back-door-left")}
-                className="cursor-pointer"
-                onClick={() => handleClick("back-door-left")}
-              />
-              {/* Window on door */}
-              <path d="M8,183 L50,175 L50,215 L8,221 Z" fill="#bfdbfe" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
-              {/* Door handle */}
-              <rect x="20" y="235" width="15" height="3" rx="1" fill="#9ca3af" />
-              <DamageMarker x={28} y={250} panelId="back-door-left" />
-
-              {/* "MAJTAS" label */}
-              <text x="28" y="15" textAnchor="middle" fontSize="9" fill="#9ca3af" fontWeight="500">MAJTAS</text>
-            </g>
-
-            {/* ===== CAR BODY (center top view) ===== */}
-            <g transform="translate(140, 20)">
-              {/* Car body shadow */}
-              <path
-                d="M50,8 Q55,0 110,0 Q165,0 170,8 L178,45 L182,90 L184,160 L184,200 L182,270 L178,315 L170,352 Q165,360 110,360 Q55,360 50,352 L42,315 L38,270 L36,200 L36,160 L38,90 L42,45 Z"
-                fill="none" stroke="#e5e7eb" strokeWidth="1"
-              />
-
-              {/* Front bumper / panel */}
-              <path
-                d="M55,15 Q60,2 110,0 Q160,2 165,15 L168,35 L52,35 Z"
-                fill={panelFill("front-panel")}
-                stroke={panelStroke("front-panel")}
-                strokeWidth={panelStrokeWidth("front-panel")}
-                className="cursor-pointer"
-                onClick={() => handleClick("front-panel")}
-              />
-              <DamageMarker x={110} y={18} panelId="front-panel" />
-
-              {/* Hood */}
-              <path
-                d="M52,35 L168,35 L172,90 L48,90 Z"
-                fill={panelFill("hood")}
-                stroke={panelStroke("hood")}
-                strokeWidth={panelStrokeWidth("hood")}
-                className="cursor-pointer"
-                onClick={() => handleClick("hood")}
-              />
-              <DamageMarker x={110} y={62} panelId="hood" />
-
-              {/* Left front fender */}
-              <path
-                d="M38,35 L52,35 L48,90 L36,90 Z"
-                fill={panelFill("front-fender-left")}
-                stroke={panelStroke("front-fender-left")}
-                strokeWidth={panelStrokeWidth("front-fender-left")}
-                className="cursor-pointer"
-                onClick={() => handleClick("front-fender-left")}
-              />
-              <DamageMarker x={43} y={62} panelId="front-fender-left" />
-
-              {/* Right front fender */}
-              <path
-                d="M168,35 L182,35 L184,90 L172,90 Z"
-                fill={panelFill("front-fender-right")}
-                stroke={panelStroke("front-fender-right")}
-                strokeWidth={panelStrokeWidth("front-fender-right")}
-                className="cursor-pointer"
-                onClick={() => handleClick("front-fender-right")}
-              />
-              <DamageMarker x={177} y={62} panelId="front-fender-right" />
-
-              {/* Front windshield */}
-              <path d="M48,90 L172,90 L176,125 L44,125 Z"
-                fill="#bfdbfe" opacity="0.5" stroke="#93c5fd" strokeWidth="0.5" />
-
-              {/* Pillar A Left */}
-              <rect x="36" y="90" width="8" height="35"
-                fill={panelFill("pillar-a-left")}
-                stroke={panelStroke("pillar-a-left")}
-                strokeWidth={panelStrokeWidth("pillar-a-left")}
-                className="cursor-pointer"
-                onClick={() => handleClick("pillar-a-left")}
-              />
-              <DamageMarker x={40} y={107} panelId="pillar-a-left" />
-
-              {/* Pillar A Right */}
-              <rect x="176" y="90" width="8" height="35"
-                fill={panelFill("pillar-a-right")}
-                stroke={panelStroke("pillar-a-right")}
-                strokeWidth={panelStrokeWidth("pillar-a-right")}
-                className="cursor-pointer"
-                onClick={() => handleClick("pillar-a-right")}
-              />
-              <DamageMarker x={180} y={107} panelId="pillar-a-right" />
-
-              {/* Roof */}
-              <path
-                d="M44,125 L176,125 L176,250 L44,250 Z"
-                fill={panelFill("roof")}
-                stroke={panelStroke("roof")}
-                strokeWidth={panelStrokeWidth("roof")}
-                className="cursor-pointer"
-                onClick={() => handleClick("roof")}
-              />
-              <DamageMarker x={110} y={187} panelId="roof" />
-
-              {/* Left sill */}
-              <rect x="32" y="125" width="4" height="140"
-                fill={panelFill("sill-left")}
-                stroke={panelStroke("sill-left")}
-                strokeWidth="0.5"
-                className="cursor-pointer"
-                onClick={() => handleClick("sill-left")}
-              />
-
-              {/* Right sill */}
-              <rect x="184" y="125" width="4" height="140"
-                fill={panelFill("sill-right")}
-                stroke={panelStroke("sill-right")}
-                strokeWidth="0.5"
-                className="cursor-pointer"
-                onClick={() => handleClick("sill-right")}
-              />
-
-              {/* Pillar B Left */}
-              <rect x="36" y="185" width="8" height="20"
-                fill={panelFill("pillar-b-left")}
-                stroke={panelStroke("pillar-b-left")}
-                strokeWidth={panelStrokeWidth("pillar-b-left")}
-                className="cursor-pointer"
-                onClick={() => handleClick("pillar-b-left")}
-              />
-              <DamageMarker x={40} y={195} panelId="pillar-b-left" />
-
-              {/* Pillar B Right */}
-              <rect x="176" y="185" width="8" height="20"
-                fill={panelFill("pillar-b-right")}
-                stroke={panelStroke("pillar-b-right")}
-                strokeWidth={panelStrokeWidth("pillar-b-right")}
-                className="cursor-pointer"
-                onClick={() => handleClick("pillar-b-right")}
-              />
-              <DamageMarker x={180} y={195} panelId="pillar-b-right" />
-
-              {/* Pillar C Left */}
-              <rect x="36" y="250" width="8" height="20"
-                fill={panelFill("pillar-c-left")}
-                stroke={panelStroke("pillar-c-left")}
-                strokeWidth={panelStrokeWidth("pillar-c-left")}
-                className="cursor-pointer"
-                onClick={() => handleClick("pillar-c-left")}
-              />
-              <DamageMarker x={40} y={260} panelId="pillar-c-left" />
-
-              {/* Pillar C Right */}
-              <rect x="176" y="250" width="8" height="20"
-                fill={panelFill("pillar-c-right")}
-                stroke={panelStroke("pillar-c-right")}
-                strokeWidth={panelStrokeWidth("pillar-c-right")}
-                className="cursor-pointer"
-                onClick={() => handleClick("pillar-c-right")}
-              />
-              <DamageMarker x={180} y={260} panelId="pillar-c-right" />
-
-              {/* Quarter panel left */}
-              <path
-                d="M36,270 L44,250 L44,300 L38,300 Z"
-                fill={panelFill("quarter-left")}
-                stroke={panelStroke("quarter-left")}
-                strokeWidth={panelStrokeWidth("quarter-left")}
-                className="cursor-pointer"
-                onClick={() => handleClick("quarter-left")}
-              />
-              <DamageMarker x={40} y={280} panelId="quarter-left" />
-
-              {/* Quarter panel right */}
-              <path
-                d="M176,250 L184,270 L182,300 L176,300 Z"
-                fill={panelFill("quarter-right")}
-                stroke={panelStroke("quarter-right")}
-                strokeWidth={panelStrokeWidth("quarter-right")}
-                className="cursor-pointer"
-                onClick={() => handleClick("quarter-right")}
-              />
-              <DamageMarker x={180} y={280} panelId="quarter-right" />
-
-              {/* Rear windshield */}
-              <path d="M44,250 L176,250 L172,280 L48,280 Z"
-                fill="#bfdbfe" opacity="0.5" stroke="#93c5fd" strokeWidth="0.5" />
-
-              {/* Trunk */}
-              <path
-                d="M48,280 L172,280 L168,325 L52,325 Z"
-                fill={panelFill("trunk")}
-                stroke={panelStroke("trunk")}
-                strokeWidth={panelStrokeWidth("trunk")}
-                className="cursor-pointer"
-                onClick={() => handleClick("trunk")}
-              />
-              <DamageMarker x={110} y={302} panelId="trunk" />
-
-              {/* Rear panel */}
-              <path
-                d="M52,325 L168,325 Q165,345 110,348 Q55,345 52,325 Z"
-                fill={panelFill("rear-panel")}
-                stroke={panelStroke("rear-panel")}
-                strokeWidth={panelStrokeWidth("rear-panel")}
-                className="cursor-pointer"
-                onClick={() => handleClick("rear-panel")}
-              />
-              <DamageMarker x={110} y={335} panelId="rear-panel" />
-
-              {/* Wheels */}
-              <ellipse cx="28" cy="72" rx="10" ry="18" fill="#374151" opacity="0.6" />
-              <ellipse cx="192" cy="72" rx="10" ry="18" fill="#374151" opacity="0.6" />
-              <ellipse cx="28" cy="290" rx="10" ry="18" fill="#374151" opacity="0.6" />
-              <ellipse cx="192" cy="290" rx="10" ry="18" fill="#374151" opacity="0.6" />
-              {/* Wheel rims */}
-              <ellipse cx="28" cy="72" rx="5" ry="10" fill="#6b7280" opacity="0.4" />
-              <ellipse cx="192" cy="72" rx="5" ry="10" fill="#6b7280" opacity="0.4" />
-              <ellipse cx="28" cy="290" rx="5" ry="10" fill="#6b7280" opacity="0.4" />
-              <ellipse cx="192" cy="290" rx="5" ry="10" fill="#6b7280" opacity="0.4" />
+              {/* Front bumper */}
+              <path d="M215,32 Q220,20 250,17 Q280,20 285,32 L288,48 L212,48 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.8"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("bumper-f")} />
 
               {/* Headlights */}
-              <ellipse cx="65" cy="12" rx="10" ry="5" fill="#fbbf24" opacity="0.4" />
-              <ellipse cx="155" cy="12" rx="10" ry="5" fill="#fbbf24" opacity="0.4" />
+              <ellipse cx="222" cy="35" rx="8" ry="6" fill="#fef3c7" stroke="#d1d5db" strokeWidth="0.5" />
+              <ellipse cx="278" cy="35" rx="8" ry="6" fill="#fef3c7" stroke="#d1d5db" strokeWidth="0.5" />
+
+              {/* Hood */}
+              <path d="M212,48 L288,48 L295,75 L300,120 L200,120 L205,75 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.8"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("hood")} />
+              {/* Hood line */}
+              <line x1="250" y1="52" x2="250" y2="115" stroke="#d1d5db" strokeWidth="0.4" />
+
+              {/* Left front fender */}
+              <path d="M195,50 L212,48 L205,75 L200,120 L190,120 L188,85 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.8"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("fender-fl")} />
+
+              {/* Right front fender */}
+              <path d="M288,48 L305,50 L312,85 L310,120 L300,120 L295,75 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.8"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("fender-fr")} />
+
+              {/* Front windshield */}
+              <path d="M200,120 L300,120 L305,165 L195,165 Z"
+                fill="url(#glassGrad)" opacity="0.5" stroke="#93c5fd" strokeWidth="0.6" />
+
+              {/* A-pillars */}
+              <rect x="188" y="120" width="7" height="45" rx="2" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-300" onClick={() => setSelected("pillar-al")} />
+              <rect x="305" y="120" width="7" height="45" rx="2" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-300" onClick={() => setSelected("pillar-ar")} />
+
+              {/* Roof */}
+              <path d="M195,165 L305,165 L305,310 L195,310 Z"
+                fill="#eff1f3" stroke="#9ca3af" strokeWidth="0.8"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("roof")} />
+              {/* Sunroof hint */}
+              <rect x="220" y="195" width="60" height="80" rx="5" fill="none" stroke="#d1d5db" strokeWidth="0.4" strokeDasharray="3,3" />
+
+              {/* Left sill */}
+              <rect x="184" y="165" width="4" height="160" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="0.4"
+                className="cursor-pointer hover:fill-gray-300" onClick={() => setSelected("sill-l")} />
+              {/* Right sill */}
+              <rect x="312" y="165" width="4" height="160" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="0.4"
+                className="cursor-pointer hover:fill-gray-300" onClick={() => setSelected("sill-r")} />
+
+              {/* B-pillars */}
+              <rect x="188" y="235" width="7" height="22" rx="2" fill="#d1d5db" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-400" onClick={() => setSelected("pillar-bl")} />
+              <rect x="305" y="235" width="7" height="22" rx="2" fill="#d1d5db" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-400" onClick={() => setSelected("pillar-br")} />
+
+              {/* C-pillars */}
+              <rect x="188" y="310" width="7" height="25" rx="2" fill="#d1d5db" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-400" onClick={() => setSelected("pillar-cl")} />
+              <rect x="305" y="310" width="7" height="25" rx="2" fill="#d1d5db" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-400" onClick={() => setSelected("pillar-cr")} />
+
+              {/* Quarter panels */}
+              <path d="M188,335 L195,310 L195,365 L192,365 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("quarter-l")} />
+              <path d="M305,310 L312,335 L308,365 L305,365 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.6"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("quarter-r")} />
+
+              {/* Rear windshield */}
+              <path d="M195,310 L305,310 L300,348 L200,348 Z"
+                fill="url(#glassGrad)" opacity="0.5" stroke="#93c5fd" strokeWidth="0.6" />
+
+              {/* Trunk */}
+              <path d="M200,348 L300,348 L295,395 L205,395 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.8"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("trunk")} />
+              {/* Trunk line */}
+              <line x1="250" y1="352" x2="250" y2="390" stroke="#d1d5db" strokeWidth="0.4" />
+
+              {/* Rear bumper */}
+              <path d="M205,395 L295,395 Q290,425 250,430 Q210,425 205,395 Z"
+                fill="#f3f4f6" stroke="#9ca3af" strokeWidth="0.8"
+                className="cursor-pointer hover:fill-gray-200" onClick={() => setSelected("bumper-r")} />
 
               {/* Taillights */}
-              <ellipse cx="65" cy="340" rx="10" ry="5" fill="#ef4444" opacity="0.4" />
-              <ellipse cx="155" cy="340" rx="10" ry="5" fill="#ef4444" opacity="0.4" />
+              <ellipse cx="215" cy="400" rx="8" ry="5" fill="#fecaca" stroke="#d1d5db" strokeWidth="0.5" />
+              <ellipse cx="285" cy="400" rx="8" ry="5" fill="#fecaca" stroke="#d1d5db" strokeWidth="0.5" />
+
+              {/* Wheels */}
+              <ellipse cx="180" cy="95" rx="12" ry="22" fill="#374151" opacity="0.5" />
+              <ellipse cx="180" cy="95" rx="6" ry="12" fill="#6b7280" opacity="0.3" />
+              <ellipse cx="320" cy="95" rx="12" ry="22" fill="#374151" opacity="0.5" />
+              <ellipse cx="320" cy="95" rx="6" ry="12" fill="#6b7280" opacity="0.3" />
+              <ellipse cx="180" cy="355" rx="12" ry="22" fill="#374151" opacity="0.5" />
+              <ellipse cx="180" cy="355" rx="6" ry="12" fill="#6b7280" opacity="0.3" />
+              <ellipse cx="320" cy="355" rx="12" ry="22" fill="#374151" opacity="0.5" />
+              <ellipse cx="320" cy="355" rx="6" ry="12" fill="#6b7280" opacity="0.3" />
 
               {/* Side mirrors */}
-              <ellipse cx="25" cy="108" rx="7" ry="5" fill="#d1d5db" opacity="0.6" />
-              <ellipse cx="195" cy="108" rx="7" ry="5" fill="#d1d5db" opacity="0.6" />
+              <ellipse cx="178" cy="140" rx="8" ry="5" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="0.5" />
+              <ellipse cx="322" cy="140" rx="8" ry="5" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="0.5" />
             </g>
 
-            {/* ===== RIGHT SIDE VIEW (doors opened) ===== */}
-            <g transform="translate(415, 50)">
-              {/* Right front door - opened outward */}
-              <path
-                d="M55,60 L0,50 L0,155 L55,165 Z"
-                fill={panelFill("front-door-right")}
-                stroke={panelStroke("front-door-right")}
-                strokeWidth={panelStrokeWidth("front-door-right")}
-                className="cursor-pointer"
-                onClick={() => handleClick("front-door-right")}
-              />
-              {/* Window */}
-              <path d="M47,68 L5,60 L5,100 L47,106 Z" fill="#bfdbfe" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
-              {/* Handle */}
-              <rect x="20" y="120" width="15" height="3" rx="1" fill="#9ca3af" />
-              <DamageMarker x={28} y={140} panelId="front-door-right" />
+            {/* ========= LEFT DOORS (opened) ========= */}
+            <g>
+              {/* Hinge lines */}
+              <line x1="130" y1="160" x2="184" y2="168" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="2,2" />
+              <line x1="130" y1="260" x2="184" y2="258" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="2,2" />
 
-              {/* Right rear door - opened outward */}
-              <path
-                d="M55,175 L0,165 L0,270 L55,280 Z"
-                fill={panelFill("back-door-right")}
-                stroke={panelStroke("back-door-right")}
-                strokeWidth={panelStrokeWidth("back-door-right")}
-                className="cursor-pointer"
-                onClick={() => handleClick("back-door-right")}
-              />
-              {/* Window */}
-              <path d="M47,183 L5,175 L5,215 L47,221 Z" fill="#bfdbfe" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
-              {/* Handle */}
-              <rect x="20" y="235" width="15" height="3" rx="1" fill="#9ca3af" />
-              <DamageMarker x={28} y={250} panelId="back-door-right" />
+              {/* Front door left */}
+              <path d="M35,115 L130,130 L130,230 L35,245 Z"
+                fill="#f9fafb" stroke="#9ca3af" strokeWidth="1"
+                className="cursor-pointer hover:fill-gray-100" onClick={() => setSelected("door-fl")} />
+              {/* Door window */}
+              <path d="M45,125 L122,138 L122,178 L45,168 Z"
+                fill="url(#glassGrad)" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
+              {/* Door handle */}
+              <rect x="60" y="195" width="18" height="3" rx="1.5" fill="#9ca3af" />
+              {/* Door edge line */}
+              <line x1="38" y1="180" x2="128" y2="184" stroke="#d1d5db" strokeWidth="0.4" />
 
-              {/* "DJATHTAS" label */}
-              <text x="28" y="15" textAnchor="middle" fontSize="9" fill="#9ca3af" fontWeight="500">DJATHTAS</text>
+              {/* Rear door left */}
+              <path d="M35,255 L130,240 L130,340 L35,355 Z"
+                fill="#f9fafb" stroke="#9ca3af" strokeWidth="1"
+                className="cursor-pointer hover:fill-gray-100" onClick={() => setSelected("door-rl")} />
+              {/* Door window */}
+              <path d="M45,263 L122,250 L122,290 L45,300 Z"
+                fill="url(#glassGrad)" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
+              {/* Door handle */}
+              <rect x="60" y="310" width="18" height="3" rx="1.5" fill="#9ca3af" />
+              {/* Door edge line */}
+              <line x1="38" y1="308" x2="128" y2="298" stroke="#d1d5db" strokeWidth="0.4" />
             </g>
 
-            {/* Direction labels */}
-            <text x="250" y="15" textAnchor="middle" fontSize="10" fill="#9ca3af" fontWeight="600">PARA</text>
-            <text x="250" y="395" textAnchor="middle" fontSize="10" fill="#9ca3af" fontWeight="600">PRAPA</text>
+            {/* ========= RIGHT DOORS (opened) ========= */}
+            <g>
+              {/* Hinge lines */}
+              <line x1="370" y1="160" x2="316" y2="168" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="2,2" />
+              <line x1="370" y1="260" x2="316" y2="258" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="2,2" />
 
-            {/* Hinge lines connecting doors to body */}
-            <line x1="85" y1="100" x2="172" y2="145" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="3,3" />
-            <line x1="85" y1="225" x2="172" y2="205" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="3,3" />
-            <line x1="415" y1="100" x2="328" y2="145" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="3,3" />
-            <line x1="415" y1="225" x2="328" y2="205" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="3,3" />
+              {/* Front door right */}
+              <path d="M465,115 L370,130 L370,230 L465,245 Z"
+                fill="#f9fafb" stroke="#9ca3af" strokeWidth="1"
+                className="cursor-pointer hover:fill-gray-100" onClick={() => setSelected("door-fr")} />
+              {/* Door window */}
+              <path d="M455,125 L378,138 L378,178 L455,168 Z"
+                fill="url(#glassGrad)" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
+              {/* Door handle */}
+              <rect x="420" y="195" width="18" height="3" rx="1.5" fill="#9ca3af" />
+              <line x1="462" y1="180" x2="372" y2="184" stroke="#d1d5db" strokeWidth="0.4" />
+
+              {/* Rear door right */}
+              <path d="M465,255 L370,240 L370,340 L465,355 Z"
+                fill="#f9fafb" stroke="#9ca3af" strokeWidth="1"
+                className="cursor-pointer hover:fill-gray-100" onClick={() => setSelected("door-rr")} />
+              {/* Door window */}
+              <path d="M455,263 L378,250 L378,290 L455,300 Z"
+                fill="url(#glassGrad)" opacity="0.4" stroke="#93c5fd" strokeWidth="0.5" />
+              {/* Door handle */}
+              <rect x="420" y="310" width="18" height="3" rx="1.5" fill="#9ca3af" />
+              <line x1="462" y1="308" x2="372" y2="298" stroke="#d1d5db" strokeWidth="0.4" />
+            </g>
+
+            {/* ========= DAMAGE MARKERS ========= */}
+            {Object.keys(panelStatus).map(id => (
+              <Marker key={id} id={id} />
+            ))}
           </svg>
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 mt-3 text-[11px] text-gray-600">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-gray-200 border border-gray-300"></span>
-            Normal
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-            <b>X</b> Nderruar
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-            <b>W</b> Llamarine
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
-            <b>C</b> Korrozion
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-            <b>A</b> Gervishje
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-            <b>U</b> E pabarabarte
-          </span>
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 mt-4 text-[11px] text-gray-700">
+          {Object.entries(STATUS_MARKER).map(([code, info]) => (
+            <span key={code} className="inline-flex items-center gap-1">
+              <span className="w-4 h-4 rounded-full text-white text-[8px] font-bold flex items-center justify-center"
+                style={{ backgroundColor: info.color }}>{info.letter}</span>
+              {info.label}
+            </span>
+          ))}
         </div>
 
-        {/* Summary badge */}
-        <div className="flex justify-center mt-3">
-          {hasIssues ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs font-medium">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              Ka ndryshime te konstatuara
-            </div>
+        {/* Status */}
+        <div className="text-center mt-3">
+          {Object.values(panelStatus).some(s => s !== "NORMAL") ? (
+            <span className="text-xs text-red-600 font-medium">
+              Ka ndryshime te konstatuara ne panele
+            </span>
           ) : (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-full text-xs font-medium">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Te gjitha panelet ne gjendje normale
-            </div>
+            <span className="text-xs text-green-600 font-medium">
+              Te gjitha panelet jane ne gjendje normale
+            </span>
           )}
         </div>
       </div>
