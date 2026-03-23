@@ -19,47 +19,47 @@ import {
 } from "@/lib/encar";
 import PhotoGallery from "@/components/PhotoGallery";
 
-// Encar standard option codes mapping
+// Encar standard option codes mapping (Albanian)
 const OPTION_MAP: Record<string, string> = {
-  "001": "Sunroof", "002": "Panoramic Sunroof", "003": "Moonroof",
-  "004": "LED Headlights", "005": "Parking Sensors", "006": "Rear Camera",
-  "007": "Auto A/C", "008": "Smart Key", "009": "Push Start",
-  "010": "Navigation", "011": "Bluetooth", "012": "USB Port",
-  "013": "AUX", "014": "Heated Seats", "015": "Ventilated Seats",
-  "016": "Memory Seats", "017": "Leather Seats", "018": "Power Seats",
-  "019": "Cruise Control", "020": "Auto Headlights", "021": "Rain Sensor",
-  "022": "Rear Wiper", "023": "Fog Lights", "024": "Alloy Wheels",
-  "025": "Roof Rails", "026": "Tinted Windows", "027": "Side Mirror Folding",
-  "028": "Side Mirror Heating", "029": "Auto Dimming Mirror",
-  "030": "Lane Departure Warning", "031": "Forward Collision Warning",
-  "032": "Blind Spot Warning", "033": "Adaptive Cruise Control",
-  "034": "Around View Monitor", "035": "Head-Up Display",
-  "036": "Wireless Charging", "037": "Apple CarPlay", "038": "Android Auto",
-  "039": "360 Camera", "040": "Power Trunk", "041": "Hands-free Trunk",
-  "042": "Remote Start", "043": "Heated Steering Wheel",
-  "044": "Steering Mode Select", "045": "Drive Mode Select",
-  "046": "Electronic Parking Brake", "047": "Auto Hold",
-  "048": "Hill Start Assist", "049": "Hill Descent Control",
-  "050": "4WD", "051": "Air Suspension", "052": "Sport Suspension",
-  "053": "Active Sound", "054": "Premium Sound", "055": "Front Parking Sensors",
-  "056": "Rear Parking Sensors", "057": "Parking Assist", "058": "Auto Parking",
-  "059": "ECM Mirror", "060": "Ambient Lighting",
-  "061": "Dual Zone Climate", "062": "Rear Climate Control",
-  "063": "Air Purifier", "064": "Seat Ventilation Rear",
-  "065": "Rear Entertainment", "066": "Power Folding Mirrors",
-  "067": "DRL", "068": "Cornering Lights", "069": "Adaptive Lights",
-  "070": "Matrix LED", "071": "Laser Headlights",
-  "072": "Emergency Braking", "073": "Pedestrian Detection",
-  "074": "Traffic Sign Recognition", "075": "Lane Keep Assist",
-  "076": "Highway Drive Assist", "077": "Remote Parking",
-  "078": "Surround View", "079": "Driver Attention Warning",
-  "080": "Rear Cross Traffic Alert", "081": "Safe Exit Warning",
-  "082": "Multi-Collision Brake", "083": "eCall",
-  "084": "Tire Pressure Monitor", "085": "ESC", "086": "Airbags 6+",
-  "087": "Airbags 8+", "088": "ISOFIX", "089": "Speed Limiter",
-  "090": "Auto Wipers", "091": "Paddle Shifters", "092": "Sport Mode",
-  "093": "Eco Mode", "094": "Electric Folding Mirrors", "095": "Welcome Lights",
-  "096": "LED Tail Lights", "097": "Sequential Turn Signals",
+  "001": "Cati e hapur", "002": "Cati panoramike", "003": "Cati me hene",
+  "004": "Drita LED", "005": "Sensoret e parkimit", "006": "Kamera mbrapa",
+  "007": "Klima automatike", "008": "Celesi inteligjent", "009": "Ndezje me buton",
+  "010": "Navigacion", "011": "Bluetooth", "012": "Port USB",
+  "013": "AUX", "014": "Ulse te ngrohta", "015": "Ulse te ventiluara",
+  "016": "Ulse me memorie", "017": "Ulse lekure", "018": "Ulse elektrike",
+  "019": "Tempomat", "020": "Drita automatike", "021": "Sensor shiu",
+  "022": "Fshires mbrapa", "023": "Drita mjegulle", "024": "Disqe aliazhi",
+  "025": "Mbajtese catie", "026": "Xhama te errsuara", "027": "Pasqyra palosese",
+  "028": "Pasqyra te ngrohta", "029": "Pasqyre anti-verbuese",
+  "030": "Paralajmerim per korsi", "031": "Paralajmerim per perplasje",
+  "032": "Paralajmerim per pike te verbera", "033": "Tempomat adaptiv",
+  "034": "Monitor rrethues", "035": "Ekran ne xham (HUD)",
+  "036": "Karikim wireless", "037": "Apple CarPlay", "038": "Android Auto",
+  "039": "Kamera 360°", "040": "Bagazh elektrik", "041": "Bagazh pa duar",
+  "042": "Ndezje ne distance", "043": "Timon i ngrohte",
+  "044": "Menyra e timonit", "045": "Menyra e vozitjes",
+  "046": "Frena parkimi elektronike", "047": "Auto Hold",
+  "048": "Ndihmese per nisje ne perpjete", "049": "Kontroll per zbritje",
+  "050": "4WD", "051": "Suspension ajrore", "052": "Suspension sportive",
+  "053": "Tingull aktiv", "054": "Sistem premium zanor", "055": "Sensoret para",
+  "056": "Sensoret mbrapa", "057": "Ndihmese parkimi", "058": "Parkim automatik",
+  "059": "Pasqyre ECM", "060": "Ndricim ambiental",
+  "061": "Klima e dyfishte", "062": "Klima per mbrapa",
+  "063": "Pastrues ajri", "064": "Ventilim ulsesh mbrapa",
+  "065": "Argetim per mbrapa", "066": "Pasqyra palosese elektrike",
+  "067": "Drita ditore (DRL)", "068": "Drita kthese", "069": "Drita adaptive",
+  "070": "Matrix LED", "071": "Drita laser",
+  "072": "Frenim emergjent", "073": "Detektor kembesore",
+  "074": "Njohje e shenjave rrugore", "075": "Ndihmese per mbajtje korsi",
+  "076": "Ndihmese per autostrade", "077": "Parkim ne distance",
+  "078": "Pamje rrethore", "079": "Paralajmerim per vemendje",
+  "080": "Alert per trafik mbrapa", "081": "Paralajmerim per dalje te sigurte",
+  "082": "Frenim multi-perplasjesh", "083": "eCall",
+  "084": "Monitor i presionit te gomave", "085": "ESC", "086": "Airbag 6+",
+  "087": "Airbag 8+", "088": "ISOFIX", "089": "Kufizues shpejtesie",
+  "090": "Fshirese automatike", "091": "Levize ne timon", "092": "Modalitet sport",
+  "093": "Modalitet eko", "094": "Pasqyra palosese elektrike", "095": "Drita mireseardhje",
+  "096": "Drita mbrapa LED", "097": "Sinjale sekuenciale",
 };
 
 interface CarDetailPageProps {
@@ -297,14 +297,14 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
           {/* Specifications */}
           <div className="mt-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Specifikacionet</h2>
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="grid grid-cols-2 divide-x divide-y divide-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-3">Specifikacionet</h2>
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
                 <DetailRow label="Marka" value={category?.manufacturerEnglishName || translateManufacturer(car.Manufacturer)} />
                 <DetailRow label="Modeli" value={category?.modelName || translateModel(car.Model)} />
                 <DetailRow label="Varianti" value={gradeName} />
                 <DetailRow label="Viti" value={car.FormYear} />
-                <DetailRow label="Kilometrazhi" value={formatMileage(car.Mileage)} />
+                <DetailRow label="Km" value={formatMileage(car.Mileage)} />
                 <DetailRow label="Karburanti" value={translateFuelType(car.FuelType)} />
                 <DetailRow label="Transmisioni" value={translateTransmission(car.Transmission)} />
                 {spec?.displacement && (
@@ -818,9 +818,9 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-4">
-      <div className="text-xs text-gray-500 mb-1">{label}</div>
-      <div className="font-medium text-gray-900">{value}</div>
+    <div className="flex justify-between items-center py-1.5 border-b border-gray-100 last:border-0">
+      <span className="text-xs text-gray-500">{label}</span>
+      <span className="text-sm font-medium text-gray-900 text-right">{value}</span>
     </div>
   );
 }
