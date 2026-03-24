@@ -66,7 +66,7 @@ export default function CarBodyDiagram({ diagnosisItems }: CarBodyDiagramProps) 
   }
 
   const hasData = diagnosisItems && diagnosisItems.some(
-    (item: any) => item.resultCode && PANEL_POSITIONS[item.name]
+    (item: any) => item.name && PANEL_POSITIONS[item.name]
   );
   if (!hasData) return null;
 
