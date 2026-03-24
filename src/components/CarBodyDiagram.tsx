@@ -102,8 +102,8 @@ export default function CarBodyDiagram({ diagnosisItems }: CarBodyDiagramProps) 
   };
 
   const sel = selected && !isNormal(selected) ? {
-    label: PANEL_LABELS[selected],
     ...STATUS_MARKER[getStatus(selected)],
+    label: PANEL_LABELS[selected],
   } : null;
 
   return (
