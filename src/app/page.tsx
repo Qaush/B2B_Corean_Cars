@@ -214,7 +214,7 @@ export default async function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Mbeshtetje 24/7</h3>
               <p className="text-gray-600">
-                Ekipi yne eshte gjithmone i gatshme per t{"'"}ju ndihmuar permes WhatsApp, Instagram dhe me shume.
+                Ekipi yne eshte gjithmone i gatshme per t{"'"}ju ndihmuar permes WhatsApp.
               </p>
             </div>
           </div>

@@ -45,7 +45,7 @@ function getAutoResponse(message: string): string {
     return "Ju faleminderit! Nese keni pyetje te tjera, mos hezitoni te pyesni. Per bisede me te detajuar, na shkruani ne WhatsApp!";
   }
 
-  return "Faleminderit per pyetjen! Per pergjigje me te detajuara, ju rekomandoj te na kontaktoni drejtperdrejt:\n\n📱 WhatsApp: +383 44 123 456\n📸 Instagram: @koreancars\n\nEkipi yne do t'ju pergjigjet brenda 24 oreve!";
+  return "Faleminderit per pyetjen! Per pergjigje me te detajuara, ju rekomandoj te na kontaktoni drejtperdrejt:\n\n📱 WhatsApp: +383 44 123 456\n\nEkipi yne do t'ju pergjigjet brenda 24 oreve!";
 }
 
 export default function ChatWidget() {
