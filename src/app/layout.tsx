@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Korean Cars - Import Veturash nga Korea",
+  title: "DriveSphere - Import Veturash nga Korea",
   description:
     "Importoni vetura te perdorura direkt nga Korea e Jugut me cmime te volitshme. Hyundai, Kia, Genesis dhe me shume.",
   keywords: "vetura, korea, import, hyundai, kia, genesis, auto, makina",

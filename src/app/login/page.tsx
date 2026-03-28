@@ -10,8 +10,8 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-2xl">KC</span>
+            <div className="mx-auto mb-4">
+              <span className="text-2xl font-bold text-gray-900">Drive<span className="text-red-600">Sphere</span></span>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Kyçu në llogarinë</h1>
             <p className="text-gray-500 mt-2">

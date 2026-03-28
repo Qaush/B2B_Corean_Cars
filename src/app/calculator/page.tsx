@@ -2,7 +2,7 @@ import ImportCalculator from "@/components/ImportCalculator";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Kalkulator i Importit - Korean Cars",
+  title: "Kalkulator i Importit - DriveSphere",
   description: "Kalkuloni koston totale te importit te vetures tuaj nga Korea ne Kosove.",
 };
 

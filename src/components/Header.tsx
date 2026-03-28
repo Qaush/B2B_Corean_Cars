@@ -27,7 +27,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold text-gray-900 tracking-tight">
-              Korean<span className="text-red-600">Cars</span>
+              Drive<span className="text-red-600">Sphere</span>
             </span>
           </Link>
 

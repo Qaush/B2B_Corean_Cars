@@ -45,7 +45,7 @@ export default function AdminSidebar() {
       <aside className="w-64 bg-gray-900 text-white shrink-0 hidden lg:block">
         <div className="p-6">
           <h2 className="text-lg font-bold mb-1">Paneli Admin</h2>
-          <p className="text-gray-400 text-xs">Korean Cars CRM</p>
+          <p className="text-gray-400 text-xs">DriveSphere CRM</p>
         </div>
         <nav className="px-3 space-y-1">
           {navItems.map((item) => (

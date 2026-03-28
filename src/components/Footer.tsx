@@ -8,7 +8,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <span className="text-xl font-bold tracking-tight mb-4 block">
-              Korean<span className="text-red-500">Cars</span>
+              Drive<span className="text-red-500">Sphere</span>
             </span>
             <p className="text-gray-400 text-sm leading-relaxed">
               Import i veturave direkt nga Korea e Jugut. Cmime konkurruese,
@@ -50,7 +50,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-600 text-sm">
-          <p>&copy; {new Date().getFullYear()} Korean Cars. Te gjitha te drejtat e rezervuara.</p>
+          <p>&copy; {new Date().getFullYear()} DriveSphere. Te gjitha te drejtat e rezervuara.</p>
         </div>
       </div>
     </footer>
