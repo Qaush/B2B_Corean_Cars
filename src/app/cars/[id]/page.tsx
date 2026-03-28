@@ -256,15 +256,15 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
       const order: Record<string, number> = { OUTER: 0, INNER: 1, OPTION: 2 };
       return (order[a.type] ?? 3) - (order[b.type] ?? 3);
     });
-    allPhotos = sorted.map((p: any) => getImageUrl(p.path));
+    allPhotos = sorted.map((p: any) => getImageUrl(p.path, "detail"));
   } else {
     // Fallback: generate from Photo base path
     if (car.Photo) {
       for (let i = 1; i <= 30; i++) {
-        allPhotos.push(getImageUrl(`${car.Photo}${i.toString().padStart(3, "0")}.jpg`));
+        allPhotos.push(getImageUrl(`${car.Photo}${i.toString().padStart(3, "0")}.jpg`, "detail"));
       }
     } else {
-      allPhotos = car.Photos?.map((p) => getImageUrl(p.location)) || [];
+      allPhotos = car.Photos?.map((p) => getImageUrl(p.location, "detail")) || [];
     }
   }
 

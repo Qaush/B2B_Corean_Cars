@@ -55,17 +55,24 @@ export function formatEur(eur: number): string {
   }).format(eur);
 }
 
-export function getImageUrl(photo: string): string {
+// Image quality params for cleaner, higher-res photos
+const IMG_QUALITY_CARD = "?impolicy=heightRate&rh=480&cw=640&ch=480&cg=Center";
+const IMG_QUALITY_DETAIL = "?impolicy=heightRate&rh=800&cw=1200&ch=800&cg=Center";
+
+export function getImageUrl(photo: string, quality: "card" | "detail" | "raw" = "raw"): string {
   if (!photo) return "/placeholder-car.svg";
-  return `https://ci.encar.com${photo}`;
+  const base = `https://ci.encar.com${photo}`;
+  if (quality === "card") return base + IMG_QUALITY_CARD;
+  if (quality === "detail") return base + IMG_QUALITY_DETAIL;
+  return base;
 }
 
-export function getMainImageUrl(car: EncarCar): string {
+export function getMainImageUrl(car: EncarCar, quality: "card" | "detail" | "raw" = "card"): string {
   if (car.Photos && car.Photos.length > 0) {
-    return getImageUrl(car.Photos[0].location);
+    return getImageUrl(car.Photos[0].location, quality);
   }
   if (car.Photo) {
-    return getImageUrl(car.Photo + "001.jpg");
+    return getImageUrl(car.Photo + "001.jpg", quality);
   }
   return "/placeholder-car.svg";
 }
