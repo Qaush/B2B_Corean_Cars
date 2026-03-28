@@ -42,7 +42,8 @@ interface ReservationItem {
 
 const statusMap: Record<string, { label: string; color: string }> = {
   pending: { label: "Ne pritje", color: "bg-yellow-100 text-yellow-800" },
-  confirmed: { label: "Konfirmuar", color: "bg-green-100 text-green-800" },
+  inspecting: { label: "Duke u inspektuar", color: "bg-blue-100 text-blue-800" },
+  confirmed: { label: "Perfunduar", color: "bg-green-100 text-green-800" },
   cancelled: { label: "Anulluar", color: "bg-red-100 text-red-800" },
 };
 
@@ -97,6 +98,17 @@ export default function ProfilePage() {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ carId }),
+    });
+  };
+
+  const cancelReservation = async (id: string) => {
+    setReservations((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: "cancelled" } : r))
+    );
+    await fetch("/api/reservations", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status: "cancelled" }),
     });
   };
 
@@ -161,12 +173,12 @@ export default function ProfilePage() {
           <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          Rezervimet ({reservations.length})
+          Kerkesat per Inspektim ({reservations.length})
         </h2>
 
         {reservations.length === 0 ? (
           <div className="bg-gray-50 rounded-xl p-8 text-center">
-            <p className="text-gray-500 mb-3">Nuk keni rezervime ende.</p>
+            <p className="text-gray-500 mb-3">Nuk keni kerkesa per inspektim ende.</p>
             <Link href="/cars" className="text-blue-600 hover:underline font-medium">
               Shfleto veturat
             </Link>
@@ -174,7 +186,11 @@ export default function ProfilePage() {
         ) : (
           <div className="space-y-4">
             {reservations.map((res) => (
-              <ReservationCard key={res.id} reservation={res} />
+              <ReservationCard
+                key={res.id}
+                reservation={res}
+                onCancel={() => cancelReservation(res.id)}
+              />
             ))}
           </div>
         )}
@@ -232,7 +248,7 @@ function WishlistCard({
   );
 }
 
-function ReservationCard({ reservation }: { reservation: ReservationItem }) {
+function ReservationCard({ reservation, onCancel }: { reservation: ReservationItem; onCancel: () => void }) {
   const car = reservation.carData;
   const { total } = getTotalPrice(car.price);
   const st = statusMap[reservation.status] || statusMap.pending;
@@ -268,13 +284,23 @@ function ReservationCard({ reservation }: { reservation: ReservationItem }) {
         {reservation.notes && (
           <p className="text-sm text-gray-500 mt-2 line-clamp-2">{reservation.notes}</p>
         )}
-        <p className="text-xs text-gray-400 mt-2">
-          {new Date(reservation.createdAt).toLocaleDateString("sq-AL", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </p>
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-gray-400">
+            {new Date(reservation.createdAt).toLocaleDateString("sq-AL", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+          {reservation.status === "pending" && (
+            <button
+              onClick={onCancel}
+              className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors"
+            >
+              Anulo kerkesen
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

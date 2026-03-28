@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
   if (existing) {
     return NextResponse.json(
-      { error: "Keni tashmë një rezervim aktiv për këtë veturë" },
+      { error: "Keni tashmë një kërkesë aktive për këtë veturë" },
       { status: 409 }
     );
   }
@@ -53,4 +53,33 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json(reservation);
+}
+
+export async function PATCH(req: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id, status } = await req.json();
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+
+  // Users can only cancel their own requests
+  const reservation = await prisma.reservation.findFirst({
+    where: { id, userId: session.user.id },
+  });
+
+  if (!reservation) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  if (status === "cancelled") {
+    const updated = await prisma.reservation.update({
+      where: { id },
+      data: { status: "cancelled" },
+    });
+    return NextResponse.json(updated);
+  }
+
+  return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 }

@@ -14,7 +14,7 @@ export default async function AdminReservationsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Menaxhimi i Rezervimeve</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Kerkesat per Inspektim</h1>
       <ReservationsTable initialData={JSON.parse(JSON.stringify(reservations))} />
     </div>
   );

@@ -69,7 +69,7 @@ export default async function AdminDashboard() {
           <StatCard label="Perdorues total" value={totalUsers} icon="users" color="blue" />
         </Link>
         <Link href="/admin/reservations">
-          <StatCard label="Rezervime total" value={totalReservations} icon="calendar" color="purple" />
+          <StatCard label="Inspektime total" value={totalReservations} icon="calendar" color="purple" />
         </Link>
         <Link href="/admin/reservations">
           <StatCard label="Ne pritje" value={statusCounts.pending} icon="clock" color="yellow" />
@@ -115,13 +115,13 @@ export default async function AdminDashboard() {
       {/* Recent reservations */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-gray-900">Rezervimet e fundit</h2>
+          <h2 className="font-bold text-gray-900">Kerkesat e fundit</h2>
           <Link href="/admin/reservations" className="text-sm text-blue-600 hover:underline font-medium">
             Shiko te gjitha →
           </Link>
         </div>
         {recentReservations.length === 0 ? (
-          <p className="text-gray-500 text-sm py-4">Nuk ka rezervime ende.</p>
+          <p className="text-gray-500 text-sm py-4">Nuk ka kerkesa ende.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">

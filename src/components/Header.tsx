@@ -84,7 +84,7 @@ export default function Header() {
                       Te preferuarat
                     </Link>
                     <Link href="/profile#reservations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setDropdownOpen(false)}>
-                      Rezervimet
+                      Inspektimet
                     </Link>
                     <hr className="my-1 border-gray-100" />
                     <button onClick={() => signOut({ callbackUrl: "/" })} className="block w-full text-left px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 transition-colors">

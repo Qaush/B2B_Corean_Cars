@@ -42,7 +42,7 @@ export default function ReserveButton({ carId, carData }: ReserveButtonProps) {
           setShowModal(false);
           setStatus("idle");
           setNotes("");
-        }, 2000);
+        }, 2500);
       } else {
         const data = await res.json();
         setErrorMsg(data.error || "Dicka shkoi keq");
@@ -61,12 +61,11 @@ export default function ReserveButton({ carId, carData }: ReserveButtonProps) {
         className="w-full bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
         </svg>
-        Rezervo Kete Veture
+        Kerko Inspektim
       </button>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
@@ -77,24 +76,24 @@ export default function ReserveButton({ carId, carData }: ReserveButtonProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Rezervimi u krye!</h3>
-                <p className="text-gray-500 mt-1">Do t&apos;ju kontaktojmë së shpejti.</p>
+                <h3 className="text-lg font-bold text-gray-900">Kerkesa u dergua!</h3>
+                <p className="text-gray-500 mt-1">Do t&apos;ju informojme me rezultatin e inspektimit ne llogarine tuaj.</p>
               </div>
             ) : (
               <>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Rezervo Veturen</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Kerko Inspektim</h3>
                 <p className="text-sm text-gray-500 mb-4">
-                  Plotesoni formën dhe do t&apos;ju kontaktojme per detaje.
+                  Dergoni kerkese per inspektim te vetures ne Kore. Rezultatet (foto, video, raport) do t&apos;i merrni ne llogarine tuaj.
                 </p>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Shënime (opsionale)
+                    Shenim shtese (opsionale)
                   </label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="P.sh. dua ta shikoj ne vend, jam i interesuar per financim..."
+                    placeholder="P.sh. kontrolloni motorrin, kontrollo a ka gervishjte, dua video te detajuar..."
                     className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none resize-none"
                     rows={3}
                     maxLength={500}
@@ -107,21 +106,17 @@ export default function ReserveButton({ carId, carData }: ReserveButtonProps) {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => {
-                      setShowModal(false);
-                      setStatus("idle");
-                      setErrorMsg("");
-                    }}
+                    onClick={() => { setShowModal(false); setStatus("idle"); setErrorMsg(""); }}
                     className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                   >
-                    Anulo
+                    Mbyll
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={status === "loading"}
                     className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium transition-colors disabled:opacity-50"
                   >
-                    {status === "loading" ? "Duke derguar..." : "Konfirmo Rezervimin"}
+                    {status === "loading" ? "Duke derguar..." : "Dergo Kerkesen"}
                   </button>
                 </div>
               </>
