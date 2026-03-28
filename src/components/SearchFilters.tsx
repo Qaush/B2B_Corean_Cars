@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { translateModel, translateBadge } from "@/lib/encar";
+import { translateModel, translateBadge, translateFuelType } from "@/lib/encar";
 
 const MANUFACTURERS = [
   { value: "", label: "Te gjitha markat", group: "" },
@@ -178,12 +178,12 @@ export default function SearchFilters() {
         <FilterGroup label="Karburanti">
           <select value={fuelType} onChange={(e) => updateFilters({ fuelType: e.target.value })} className={selectClass}>
             <option value="">Te gjitha</option>
-            <option value="Gasoline">Benzine</option>
-            <option value="Diesel">Diesel</option>
+            <option value="가솔린">Benzine</option>
+            <option value="디젤">Diesel</option>
             <option value="LPG">LPG</option>
-            <option value="Hybrid">Hybrid</option>
-            <option value="Electric">Elektrik</option>
-            <option value="Hydrogen">Hidrogjen</option>
+            <option value="가솔린+전기">Hybrid</option>
+            <option value="전기">Elektrik</option>
+            <option value="수소">Hidrogjen</option>
           </select>
         </FilterGroup>
 
@@ -233,7 +233,7 @@ export default function SearchFilters() {
           <div className="flex flex-wrap gap-1.5 pt-2 border-t border-gray-100">
             {manufacturer && <FilterTag label={MANUFACTURERS.find((m) => m.value === manufacturer)?.label || manufacturer} onRemove={() => setManufacturer_("")} />}
             {model && <FilterTag label={translateModel(model)} onRemove={() => setModel_("")} />}
-            {fuelType && <FilterTag label={fuelType} onRemove={() => updateFilters({ fuelType: "" })} />}
+            {fuelType && <FilterTag label={translateFuelType(fuelType)} onRemove={() => updateFilters({ fuelType: "" })} />}
             {minYear && <FilterTag label={`Nga ${minYear}`} onRemove={() => updateFilters({ minYear: "" })} />}
             {maxMileage && <FilterTag label={`Deri ${parseInt(maxMileage).toLocaleString()} km`} onRemove={() => updateFilters({ maxMileage: "" })} />}
             {minPrice && <FilterTag label={`Min ${minPrice}€`} onRemove={() => updateFilters({ minPrice: "" })} />}

@@ -61,11 +61,11 @@ export default function HeroSearch() {
             className="flex-1 bg-gray-50 rounded-xl px-4 py-3.5 text-sm text-gray-700 border-0 focus:ring-2 focus:ring-red-500 outline-none appearance-none cursor-pointer"
           >
             <option value="">Karburanti</option>
-            <option value="Gasoline">Benzine</option>
-            <option value="Diesel">Diesel</option>
+            <option value="가솔린">Benzine</option>
+            <option value="디젤">Diesel</option>
             <option value="LPG">LPG</option>
-            <option value="Hybrid">Hybrid</option>
-            <option value="Electric">Elektrik</option>
+            <option value="가솔린+전기">Hybrid</option>
+            <option value="전기">Elektrik</option>
           </select>
 
           {/* Price */}
