@@ -8,7 +8,9 @@
       "WebFetch(domain:fem.encar.com)",
       "WebFetch(domain:api.encar.com)",
       "Bash(curl -s -L https://fem.encar.com/cars/report/inspect/41561381)",
-      "Bash(curl -s https://fem.encar.com/static/js/main.4ee8650c.js)"
+      "Bash(curl -s https://fem.encar.com/static/js/main.4ee8650c.js)",
+      "Bash(git pull:*)",
+      "Bash(git -C /c/GIT/B2B_Corean_Cars remote -v)"
     ]
   }
 }
