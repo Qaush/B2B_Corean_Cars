@@ -42,16 +42,23 @@ async function getCars(searchParams: CarsPageProps["searchParams"]): Promise<Enc
   const sr = `|${sort}|${offset}|${count}`;
   const url = `${endpoint}?count=true&q=${encodeURIComponent(q)}&sr=${encodeURIComponent(sr)}`;
 
+  const headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    Accept: "application/json",
+    "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+  };
+
   try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        Accept: "application/json",
-      },
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return null;
-    return res.json();
+    const res = await fetch(url, { headers, next: { revalidate: 300 } });
+    if (res.ok) return res.json();
+
+    // Fallback: try premium endpoint if general failed
+    if (endpoint.includes("/general")) {
+      const fallbackUrl = url.replace("/list/general", "/list/premium");
+      const res2 = await fetch(fallbackUrl, { headers, next: { revalidate: 300 } });
+      if (res2.ok) return res2.json();
+    }
+    return null;
   } catch {
     return null;
   }
