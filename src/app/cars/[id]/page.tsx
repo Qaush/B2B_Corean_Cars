@@ -303,7 +303,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
                 <DetailRow label="Marka" value={category?.manufacturerEnglishName || translateManufacturer(car.Manufacturer)} />
-                <DetailRow label="Modeli" value={category?.modelName || translateModel(car.Model)} />
+                <DetailRow label="Modeli" value={translateModel(category?.modelName || car.Model)} />
                 <DetailRow label="Varianti" value={gradeName} />
                 <DetailRow label="Viti" value={car.FormYear} />
                 <DetailRow label="Km" value={formatMileage(car.Mileage)} />
