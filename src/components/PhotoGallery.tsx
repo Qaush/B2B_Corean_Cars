@@ -106,7 +106,7 @@ export default function PhotoGallery({ photos, carName }: PhotoGalleryProps) {
               onClick={() => setSelectedIndex(i)}
               className={`aspect-square rounded-lg overflow-hidden bg-gray-100 border-2 transition-all ${
                 i === selectedIndex
-                  ? "border-blue-500 ring-1 ring-blue-500"
+                  ? "border-red-500 ring-1 ring-red-500"
                   : "border-transparent hover:border-gray-300"
               }`}
             >

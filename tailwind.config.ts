@@ -8,10 +8,38 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        brand: {
+          dark: "#0a0a0f",
+          navy: "#111827",
+          accent: "#dc2626",
+          "accent-hover": "#b91c1c",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
+      },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-in": {
+          "0%": { opacity: "0", transform: "translateX(-10px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.5s ease-out forwards",
+        "slide-in": "slide-in 0.3s ease-out forwards",
+        shimmer: "shimmer 1.5s infinite",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
   },

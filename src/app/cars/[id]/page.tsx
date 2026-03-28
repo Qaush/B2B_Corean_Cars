@@ -226,7 +226,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
         </p>
         <Link
           href="/cars"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
         >
           Kthehu te veturat
         </Link>
@@ -285,9 +285,9 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <Link href="/" className="hover:text-blue-600">Ballina</Link>
+        <Link href="/" className="hover:text-red-600">Ballina</Link>
         <span>/</span>
-        <Link href="/cars" className="hover:text-blue-600">Veturat</Link>
+        <Link href="/cars" className="hover:text-red-600">Veturat</Link>
         <span>/</span>
         <span className="text-gray-900 font-medium">{carName}</span>
       </nav>
@@ -711,9 +711,9 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               <h1 className="text-2xl font-bold text-gray-900 mb-1">{carName}</h1>
               <p className="text-gray-500 text-sm mb-4">{gradeName}</p>
 
-              <div className="bg-blue-50 rounded-xl p-5 mb-6">
-                <div className="text-sm text-blue-600 font-medium mb-1">Cmimi total</div>
-                <div className="text-4xl font-bold text-blue-700">
+              <div className="bg-gray-900 rounded-xl p-5 mb-6">
+                <div className="text-sm text-gray-400 font-medium mb-1">Cmimi total</div>
+                <div className="text-4xl font-bold text-white">
                   {formatEur(total)}
                 </div>
                 <div className="mt-3 space-y-1 text-sm">
@@ -788,7 +788,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               href={`https://fem.encar.com/cars/detail/${params.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-center text-sm text-gray-500 hover:text-blue-600 transition-colors py-2"
+              className="block text-center text-sm text-gray-500 hover:text-red-600 transition-colors py-2"
             >
               Shiko listimin origjinal ne Encar.com
             </a>

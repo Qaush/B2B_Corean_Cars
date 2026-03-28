@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import CarCard from "@/components/CarCard";
+import CarCardSkeleton from "@/components/CarCardSkeleton";
 import SearchFilters from "@/components/SearchFilters";
 import { EncarSearchResult, buildSearchQueryWithType, getApiEndpoint } from "@/lib/encar";
 import Link from "next/link";
@@ -35,12 +36,10 @@ async function getCars(searchParams: CarsPageProps["searchParams"]): Promise<Enc
 
   const q = buildSearchQueryWithType(filters);
   const endpoint = getApiEndpoint(searchParams.manufacturer);
-
   const sort = searchParams.sort || "ModifiedDate";
   const offset = searchParams.offset || "0";
   const count = "20";
   const sr = `|${sort}|${offset}|${count}`;
-
   const url = `${endpoint}?count=true&q=${encodeURIComponent(q)}&sr=${encodeURIComponent(sr)}`;
 
   try {
@@ -51,7 +50,6 @@ async function getCars(searchParams: CarsPageProps["searchParams"]): Promise<Enc
       },
       next: { revalidate: 300 },
     });
-
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -72,90 +70,119 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Veturat e disponueshme
-        </h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Veturat</h1>
+        <p className="text-gray-400 mt-1 text-sm">
           {totalCount > 0
             ? `${new Intl.NumberFormat("de-DE").format(totalCount)} vetura te gjetura`
             : "Duke kerkuar..."}
         </p>
       </div>
 
-      {/* Filters */}
-      <Suspense fallback={<div className="h-16 bg-gray-100 rounded-xl animate-pulse" />}>
-        <SearchFilters />
-      </Suspense>
+      {/* Layout: Sidebar + Results */}
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+        {/* Sidebar Filters */}
+        <div className="lg:sticky lg:top-20 lg:self-start">
+          <Suspense fallback={<div className="h-96 skeleton rounded-2xl" />}>
+            <SearchFilters />
+          </Suspense>
+        </div>
 
-      {/* Results */}
-      {cars.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
-            {cars.map((car) => (
-              <CarCard key={car.Id} car={car} />
-            ))}
+        {/* Results */}
+        <div>
+          {/* Sort - top of results */}
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-gray-500">
+              {totalCount > 0 && `Faqja ${currentPage} nga ${totalPages}`}
+            </p>
+            <SortSelect searchParams={searchParams} />
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-10">
-              {currentPage > 1 && (
-                <PaginationLink
-                  searchParams={searchParams}
-                  offset={((currentPage - 2) * pageSize).toString()}
-                  label="Prapa"
-                />
-              )}
+          {cars.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {cars.map((car) => (
+                  <CarCard key={car.Id} car={car} />
+                ))}
+              </div>
 
-              {/* Page numbers */}
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum: number;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                return (
-                  <PaginationLink
-                    key={pageNum}
-                    searchParams={searchParams}
-                    offset={((pageNum - 1) * pageSize).toString()}
-                    label={pageNum.toString()}
-                    active={pageNum === currentPage}
-                  />
-                );
-              })}
-
-              {currentPage < totalPages && (
-                <PaginationLink
-                  searchParams={searchParams}
-                  offset={(currentPage * pageSize).toString()}
-                  label="Para"
-                />
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-10">
+                  {currentPage > 1 && (
+                    <PaginationLink searchParams={searchParams} offset={((currentPage - 2) * pageSize).toString()} label="Prapa" />
+                  )}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) pageNum = i + 1;
+                    else if (currentPage <= 3) pageNum = i + 1;
+                    else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                    else pageNum = currentPage - 2 + i;
+                    return (
+                      <PaginationLink
+                        key={pageNum}
+                        searchParams={searchParams}
+                        offset={((pageNum - 1) * pageSize).toString()}
+                        label={pageNum.toString()}
+                        active={pageNum === currentPage}
+                      />
+                    );
+                  })}
+                  {currentPage < totalPages && (
+                    <PaginationLink searchParams={searchParams} offset={(currentPage * pageSize).toString()} label="Para" />
+                  )}
+                </div>
               )}
+            </>
+          ) : (
+            <div className="text-center py-20">
+              <svg className="w-16 h-16 mx-auto text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <h3 className="text-lg font-medium text-gray-600 mb-2">Nuk u gjeten vetura</h3>
+              <p className="text-gray-400">
+                Provoni te ndryshoni filtrat ose{" "}
+                <Link href="/cars" className="text-red-600 hover:underline">shikoni te gjitha veturat</Link>
+              </p>
             </div>
           )}
-        </>
-      ) : (
-        <div className="text-center py-20">
-          <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <h3 className="text-lg font-medium text-gray-600 mb-2">
-            Nuk u gjeten vetura
-          </h3>
-          <p className="text-gray-400">
-            Provoni te ndryshoni filtrat ose{" "}
-            <Link href="/cars" className="text-blue-600 hover:underline">
-              shikoni te gjitha veturat
-            </Link>
-          </p>
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
+
+function SortSelect({ searchParams }: { searchParams: CarsPageProps["searchParams"] }) {
+  const params = new URLSearchParams();
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (value && key !== "sort" && key !== "offset") params.set(key, value);
+  });
+
+  const sorts = [
+    { value: "ModifiedDate", label: "Me te rejat" },
+    { value: "PriceAsc", label: "Cmimi: ulet → larte" },
+    { value: "PriceDsc", label: "Cmimi: larte → ulet" },
+    { value: "MileageAsc", label: "Km me pak" },
+    { value: "YearDsc", label: "Viti me ri" },
+  ];
+
+  return (
+    <div className="flex items-center gap-2">
+      {sorts.map((s) => {
+        const p = new URLSearchParams(params);
+        if (s.value !== "ModifiedDate") p.set("sort", s.value);
+        const isActive = (searchParams.sort || "ModifiedDate") === s.value;
+        return (
+          <Link
+            key={s.value}
+            href={`/cars?${p.toString()}`}
+            className={`hidden md:block text-xs px-3 py-1.5 rounded-full transition-colors ${
+              isActive ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            {s.label}
+          </Link>
+        );
+      })}
     </div>
   );
 }
@@ -181,9 +208,7 @@ function PaginationLink({
     <Link
       href={`/cars?${params.toString()}`}
       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-        active
-          ? "bg-blue-600 text-white"
-          : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+        active ? "bg-gray-900 text-white" : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
       }`}
     >
       {label}

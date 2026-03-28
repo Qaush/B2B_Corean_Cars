@@ -44,7 +44,7 @@ export default function ContactButtons({ carName }: ContactButtonsProps) {
           className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110 ${
             isOpen
               ? "bg-gray-700 hover:bg-gray-800 rotate-45"
-              : "bg-blue-600 hover:bg-blue-700"
+              : "bg-red-600 hover:bg-red-700"
           }`}
         >
           {isOpen ? (
