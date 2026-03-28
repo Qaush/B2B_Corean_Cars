@@ -19,6 +19,7 @@ import {
 } from "@/lib/encar";
 import PhotoGallery from "@/components/PhotoGallery";
 import CarBodyDiagram from "@/components/CarBodyDiagram";
+import ReserveButton from "@/components/ReserveButton";
 
 // Encar standard option codes mapping (Albanian)
 const OPTION_MAP: Record<string, string> = {
@@ -755,6 +756,19 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
               {/* Contact buttons */}
               <div className="space-y-3">
+                <ReserveButton
+                  carId={String(car.Id)}
+                  carData={{
+                    manufacturer: car.Manufacturer,
+                    model: car.Model,
+                    badge: car.Badge,
+                    price: car.Price,
+                    image: allPhotos[0] || getImageUrl(car.Photo),
+                    year: car.FormYear,
+                    mileage: car.Mileage,
+                    fuelType: car.FuelType,
+                  }}
+                />
                 <a
                   href={`https://wa.me/38344647559?text=${whatsappMessage}`}
                   target="_blank"

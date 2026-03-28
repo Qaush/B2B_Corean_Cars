@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactButtons from "@/components/ContactButtons";
 import ChatWidget from "@/components/ChatWidget";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "Korean Cars - Import Veturash nga Korea",
@@ -20,11 +21,13 @@ export default function RootLayout({
   return (
     <html lang="sq">
       <body className="font-sans">
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-        <ContactButtons />
-        <ChatWidget />
+        <Providers>
+          <Header />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+          <ContactButtons />
+          <ChatWidget />
+        </Providers>
       </body>
     </html>
   );

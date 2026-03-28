@@ -11,6 +11,7 @@ import {
   translateModel,
   translateBadge,
 } from "@/lib/encar";
+import WishlistButton from "./WishlistButton";
 
 interface CarCardProps {
   car: EncarCar;
@@ -19,6 +20,17 @@ interface CarCardProps {
 export default function CarCard({ car }: CarCardProps) {
   const { total } = getTotalPrice(car.Price);
   const imageUrl = getMainImageUrl(car);
+
+  const carData = {
+    manufacturer: car.Manufacturer,
+    model: car.Model,
+    badge: car.Badge,
+    price: car.Price,
+    image: imageUrl,
+    year: car.FormYear,
+    mileage: car.Mileage,
+    fuelType: car.FuelType,
+  };
 
   return (
     <Link
@@ -39,10 +51,14 @@ export default function CarCard({ car }: CarCardProps) {
           </span>
         )}
         {car.Trust?.includes("Warranty") && (
-          <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-md">
+          <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-md mr-10">
             Garanci
           </span>
         )}
+        {/* Wishlist button */}
+        <div className="absolute top-2 right-2">
+          <WishlistButton carId={String(car.Id)} carData={carData} />
+        </div>
       </div>
 
       {/* Info */}

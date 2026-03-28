@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
+    "@auth/prisma-adapter": "^2.11.1",
+    "@prisma/client": "^5.22.0",
     "next": "^14.2.20",
+    "next-auth": "^5.0.0-beta.30",
     "react": "^18",
     "react-dom": "^18"
   },
@@ -21,6 +24,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.0",
     "postcss": "^8",
+    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
