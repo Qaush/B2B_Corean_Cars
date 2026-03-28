@@ -34,13 +34,23 @@ async function getCars(searchParams: CarsPageProps["searchParams"]): Promise<Enc
     maxMileage: searchParams.maxMileage ? parseInt(searchParams.maxMileage) : undefined,
   };
 
-  const q = buildSearchQueryWithType(filters);
-  const endpoint = getApiEndpoint(searchParams.manufacturer);
+  // Build simple query without CarType (works with premium endpoint for all brands)
+  let conditions = ["Hidden.N"];
+  if (filters.manufacturer) conditions.push(`Manufacturer.${filters.manufacturer}`);
+  if (filters.model) conditions.push(`ModelGroup.${filters.model}`);
+  if (filters.badge) conditions.push(`Badge.${filters.badge}`);
+  if (filters.fuelType) conditions.push(`FuelType.${filters.fuelType}`);
+  if (filters.minPrice || filters.maxPrice) {
+    conditions.push(`Price.range(${filters.minPrice || ""}..${filters.maxPrice || ""})`);
+  }
+  if (filters.minYear) conditions.push(`Year.range(${filters.minYear}00..)`);
+  if (filters.maxMileage) conditions.push(`Mileage.range(..${filters.maxMileage})`);
+
+  const q = conditions.length === 1 ? `(And.${conditions[0]}.)` : `(And.${conditions.join(".")})`;
   const sort = searchParams.sort || "ModifiedDate";
   const offset = searchParams.offset || "0";
-  const count = "20";
-  const sr = `|${sort}|${offset}|${count}`;
-  const url = `${endpoint}?count=true&q=${encodeURIComponent(q)}&sr=${encodeURIComponent(sr)}`;
+  const sr = `|${sort}|${offset}|20`;
+  const url = `https://api.encar.com/search/car/list/premium?count=true&q=${encodeURIComponent(q)}&sr=${encodeURIComponent(sr)}`;
 
   const headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -51,13 +61,6 @@ async function getCars(searchParams: CarsPageProps["searchParams"]): Promise<Enc
   try {
     const res = await fetch(url, { headers, next: { revalidate: 300 } });
     if (res.ok) return res.json();
-
-    // Fallback: try premium endpoint if general failed
-    if (endpoint.includes("/general")) {
-      const fallbackUrl = url.replace("/list/general", "/list/premium");
-      const res2 = await fetch(fallbackUrl, { headers, next: { revalidate: 300 } });
-      if (res2.ok) return res2.json();
-    }
     return null;
   } catch {
     return null;
