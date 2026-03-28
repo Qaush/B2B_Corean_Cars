@@ -84,6 +84,16 @@ model Reservation {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model AgentRequest {
+  id          String   @id @default(cuid())
+  phoneNumber String
+  lastMessage String   @db.Text
+  status      String   @default("pending") // pending, contacted, resolved
+  adminNotes  String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model SearchPreference {
   id           String  @id @default(cuid())
   userId       String  @unique
