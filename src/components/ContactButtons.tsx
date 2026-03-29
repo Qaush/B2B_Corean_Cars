@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSiteSettings } from "./SiteSettingsProvider";
 
 interface ContactButtonsProps {
   carName?: string;
@@ -8,6 +9,7 @@ interface ContactButtonsProps {
 
 export default function ContactButtons({ carName }: ContactButtonsProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { whatsappNumber } = useSiteSettings();
 
   const message = carName
     ? `Pershendetje! Jam i interesuar per veturen: ${carName}. A mund te me jepni me shume informata?`
@@ -24,7 +26,7 @@ export default function ContactButtons({ carName }: ContactButtonsProps) {
           <div className="flex flex-col gap-2 mb-2 animate-fade-in">
             {/* WhatsApp */}
             <a
-              href={`https://wa.me/38344647559?text=${encodedMessage}`}
+              href={`https://wa.me/${whatsappNumber}?text=${encodedMessage}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full shadow-lg transition-all hover:scale-105"

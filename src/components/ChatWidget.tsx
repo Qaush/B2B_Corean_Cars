@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSiteSettings } from "./SiteSettingsProvider";
 
 interface Message {
   role: "user" | "assistant";
@@ -14,6 +15,7 @@ const INITIAL_MESSAGE: Message = {
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const { whatsappNumber } = useSiteSettings();
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -49,7 +51,7 @@ export default function ChatWidget() {
     } catch {
       setMessages((prev) => [...prev, {
         role: "assistant",
-        content: "Na vjen keq, ka nje problem teknik. Na kontaktoni ne WhatsApp: +383 44 647 559",
+        content: `Na vjen keq, ka nje problem teknik. Na kontaktoni ne WhatsApp: +${whatsappNumber}`,
       }]);
     } finally {
       setIsTyping(false);

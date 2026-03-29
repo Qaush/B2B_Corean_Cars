@@ -94,6 +94,12 @@ model AgentRequest {
   updatedAt   DateTime @updatedAt
 }
 
+model SiteSettings {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model SearchPreference {
   id           String  @id @default(cuid())
   userId       String  @unique

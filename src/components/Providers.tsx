@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { SiteSettingsProvider } from "./SiteSettingsProvider";
 
 // Wishlist context
 interface WishlistContextType {
@@ -99,7 +100,9 @@ function WishlistProvider({ children }: { children: React.ReactNode }) {
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <WishlistProvider>{children}</WishlistProvider>
+      <SiteSettingsProvider>
+        <WishlistProvider>{children}</WishlistProvider>
+      </SiteSettingsProvider>
     </SessionProvider>
   );
 }

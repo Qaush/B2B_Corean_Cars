@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useSiteSettings } from "./SiteSettingsProvider";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { data: session } = useSession();
+  const { whatsappNumber } = useSiteSettings();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function Header() {
               Kalkulator
             </Link>
             <a
-              href="https://wa.me/38344647559"
+              href={`https://wa.me/${whatsappNumber}`}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -144,7 +146,7 @@ export default function Header() {
                 <Link href="/profile" className="text-gray-700 hover:text-gray-900 font-medium py-2.5 px-3 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Profili im</Link>
               </>
             )}
-            <a href="https://wa.me/38344647559" target="_blank" rel="noopener noreferrer" className="bg-red-600 text-white py-2.5 px-3 rounded-lg font-medium text-center mt-1">Na Kontakto</a>
+            <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="bg-red-600 text-white py-2.5 px-3 rounded-lg font-medium text-center mt-1">Na Kontakto</a>
             {session?.user && (
               <button onClick={() => { setMenuOpen(false); signOut({ callbackUrl: "/" }); }} className="text-gray-500 font-medium py-2.5 px-3 rounded-lg text-left hover:bg-gray-50">Dil nga llogaria</button>
             )}

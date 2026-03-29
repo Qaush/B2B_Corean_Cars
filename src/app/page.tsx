@@ -5,6 +5,7 @@ import TrustSection from "@/components/TrustSection";
 import {
   EncarSearchResult,
 } from "@/lib/encar";
+import { getWhatsAppNumber } from "@/lib/settings";
 
 async function getFeaturedCars(): Promise<EncarSearchResult | null> {
   try {
@@ -26,7 +27,7 @@ async function getFeaturedCars(): Promise<EncarSearchResult | null> {
 }
 
 export default async function Home() {
-  const data = await getFeaturedCars();
+  const [data, whatsappNumber] = await Promise.all([getFeaturedCars(), getWhatsAppNumber()]);
   const cars = data?.SearchResults || [];
 
   return (
@@ -191,7 +192,7 @@ export default async function Home() {
               Eksploro Katalogun
             </Link>
             <a
-              href="https://wa.me/38344647559"
+              href={`https://wa.me/${whatsappNumber}`}
               target="_blank"
               rel="noopener noreferrer"
               className="border border-gray-700 hover:border-gray-500 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors"

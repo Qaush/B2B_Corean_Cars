@@ -17,6 +17,7 @@ import {
   translateInspectionStatus,
   TRANSPORT_COST,
 } from "@/lib/encar";
+import { getWhatsAppNumber } from "@/lib/settings";
 import PhotoGallery from "@/components/PhotoGallery";
 import CarBodyDiagram from "@/components/CarBodyDiagram";
 import ReserveButton from "@/components/ReserveButton";
@@ -238,7 +239,7 @@ async function getCarData(id: string): Promise<DetailData | null> {
 }
 
 export default async function CarDetailPage({ params }: CarDetailPageProps) {
-  const data = await getCarData(params.id);
+  const [data, whatsappNumber] = await Promise.all([getCarData(params.id), getWhatsAppNumber()]);
 
   if (!data) {
     return (
@@ -730,7 +731,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                   }}
                 />
                 <a
-                  href={`https://wa.me/38344647559?text=${whatsappMessage}`}
+                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"

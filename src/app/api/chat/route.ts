@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { getWhatsAppNumber, formatWhatsAppDisplay } from "@/lib/settings";
 
 const anthropic = new Anthropic();
 
-const SYSTEM_PROMPT = `Ti je asistenti virtual i "DriveSphere" - një platformë që importon vetura nga Korea e Jugut për tregun e Kosovës dhe Shqipërisë.
+function buildSystemPrompt(whatsappDisplay: string) {
+  return `Ti je asistenti virtual i "DriveSphere" - një platformë që importon vetura nga Korea e Jugut për tregun e Kosovës dhe Shqipërisë.
 
 RREGULLAT:
 - Fol gjithmonë SHQIP
@@ -18,7 +20,7 @@ INFORMATA PËR KOMPANINË:
 - Pagesa: para në dorë ose transfer bankar
 - Dorëzimi: 3-5 javë
 - Të gjitha veturat kanë historik aksidentesh dhe inspektim
-- WhatsApp: +383 44 647 559
+- WhatsApp: ${whatsappDisplay}
 - Website: https://b2c-corean-cars.vercel.app
 
 MUND TË NDIHMOSH ME:
@@ -29,8 +31,12 @@ MUND TË NDIHMOSH ME:
 - Transport dhe dorëzim
 
 Nëse pyetja nuk ka lidhje me vetura, thuaj me mirësjellje që je asistent për vetura.`;
+}
 
 export async function POST(req: Request) {
+  const whatsappNumber = await getWhatsAppNumber();
+  const whatsappDisplay = formatWhatsAppDisplay(whatsappNumber);
+
   try {
     const { messages } = await req.json();
 
@@ -47,7 +53,7 @@ export async function POST(req: Request) {
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 300,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPrompt(whatsappDisplay),
       messages: recentMessages,
     });
 
@@ -57,7 +63,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Chat API error:", error?.message || error);
     return NextResponse.json(
-      { content: "Na vjen keq, ka nje problem teknik. Ju lutem na kontaktoni ne WhatsApp: +383 44 647 559" },
+      { content: `Na vjen keq, ka nje problem teknik. Ju lutem na kontaktoni ne WhatsApp: ${whatsappDisplay}` },
       { status: 200 }
     );
   }

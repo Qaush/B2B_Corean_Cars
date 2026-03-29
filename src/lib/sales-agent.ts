@@ -1,8 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { getWhatsAppNumber, formatWhatsAppDisplay } from "./settings";
 
 const anthropic = new Anthropic();
 
-const SYSTEM_PROMPT = `Ti je një agjent shitjesh profesional për "DriveSphere" - një platformë që importon vetura nga Korea e Jugut për tregun e Kosovës dhe Shqipërisë.
+const SYSTEM_PROMPT_TEMPLATE = `Ti je një agjent shitjesh profesional për "DriveSphere" - një platformë që importon vetura nga Korea e Jugut për tregun e Kosovës dhe Shqipërisë.
 
 RREGULLAT E TUA:
 - Fol gjithmonë në gjuhën SHQIPE
@@ -19,7 +20,7 @@ INFORMATA PËR KOMPANINË:
 - Pagesa mund të bëhet me para në dorë ose me transfer bankar
 - Dorëzimi zgjat 3-5 javë nga momenti i porosisë
 - Të gjitha veturat kanë historik aksidentesh dhe raport inspektimi
-- Numri ynë WhatsApp: +383 44 647 559
+- Numri ynë WhatsApp: {{WHATSAPP_DISPLAY}}
 - Website: https://b2c-corean-cars.vercel.app
 
 KUALIFIKIMET E LEAD-IT:
@@ -73,10 +74,14 @@ export async function getAgentResponse(
   }
 
   try {
+    const whatsappNumber = await getWhatsAppNumber();
+    const whatsappDisplay = formatWhatsAppDisplay(whatsappNumber);
+    const systemPrompt = SYSTEM_PROMPT_TEMPLATE.replace("{{WHATSAPP_DISPLAY}}", whatsappDisplay);
+
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 400,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: history,
     });
 
@@ -98,7 +103,8 @@ export async function getAgentResponse(
     return cleanMessage;
   } catch (error: any) {
     console.error("Agent error:", error.message);
-    return "Më falni, kemi një problem teknik. Ju lutem na kontaktoni direkt në +383 44 647 559.";
+    const fallbackNum = await getWhatsAppNumber().catch(() => "38344647559");
+    return `Më falni, kemi një problem teknik. Ju lutem na kontaktoni direkt në ${formatWhatsAppDisplay(fallbackNum)}.`;
   }
 }
 

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useSiteSettings } from "./SiteSettingsProvider";
 
 export default function ImportCalculator() {
+  const { whatsappNumber } = useSiteSettings();
   const [price, setPrice] = useState("");
   const [year, setYear] = useState("");
   const [cc, setCc] = useState("");
@@ -90,7 +92,7 @@ export default function ImportCalculator() {
             </p>
 
             <a
-              href={`https://wa.me/38344647559?text=${encodeURIComponent(`Pershendetje! Dua te importoj nje veture me cmim ${price}€, viti ${year}. A mund te me jepni nje oferte te sakte?`)}`}
+              href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Pershendetje! Dua te importoj nje veture me cmim ${price}€, viti ${year}. A mund te me jepni nje oferte te sakte?`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
