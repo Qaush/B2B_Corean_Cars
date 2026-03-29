@@ -211,7 +211,29 @@ async function getCarData(id: string): Promise<DetailData | null> {
     } catch {}
   }
 
-  return { car, detail, accidentSummary, inspectionSummary, diagnosis };
+  // Fetch inspection page HTML to extract performanceCheck data (damage diagram)
+  let performanceData: Record<string, string[] | null> | null = null;
+  try {
+    const inspPageRes = await fetch(
+      `https://www.encar.com/md/sl/mdsl_regcar.do?method=inspectionViewNew&carid=${effectiveId}`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "text/html",
+        },
+        next: { revalidate: 300 },
+      }
+    );
+    if (inspPageRes.ok) {
+      const inspHtml = await inspPageRes.text();
+      const match = inspHtml.match(/performanceCheck\.init\(\{\s*data\s*:\s*(\{[^}]+\})/);
+      if (match) {
+        performanceData = JSON.parse(match[1]);
+      }
+    }
+  } catch {}
+
+  return { car, detail, accidentSummary, inspectionSummary, diagnosis, performanceData };
 }
 
 export default async function CarDetailPage({ params }: CarDetailPageProps) {
@@ -234,7 +256,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
     );
   }
 
-  const { car, detail, accidentSummary, inspectionSummary, diagnosis } = data;
+  const { car, detail, accidentSummary, inspectionSummary, diagnosis, performanceData } = data;
   const carsData = detail?.cars;
   const category = carsData?.base?.category;
   const advertisement = carsData?.base?.advertisement;
@@ -519,12 +541,12 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
           </div>
 
           {/* Performance Check / Diagnosis */}
-          {(diagnosis || inspectionSummary) && (
+          {(diagnosis || inspectionSummary || performanceData) && (
             <div className="mt-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Inspektimi i performances</h2>
               <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
                 {/* Car Body Diagram */}
-                <CarBodyDiagram diagnosisItems={diagnosis?.items} inspectionOuters={inspectionSummary?.outers} />
+                <CarBodyDiagram performanceData={performanceData} />
 
                 {/* Diagnosis items - panel check results */}
                 {diagnosis?.items && diagnosis.items.length > 0 && (
@@ -557,69 +579,6 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                         })}
                     </div>
                   </div>
-                )}
-
-                {/* Inspection summary - outer panel changes */}
-                {inspectionSummary?.outers && inspectionSummary.outers.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Ndryshimet e konstatuara</h3>
-                    <div className="space-y-2">
-                      {inspectionSummary.outers.map((outer: any, idx: number) => {
-                        const statuses = outer.statusTypes || [];
-                        return (
-                          <div key={idx} className="flex items-center justify-between bg-orange-50 border border-orange-200 rounded-lg px-4 py-3">
-                            <span className="text-sm font-medium text-gray-900">
-                              {translateInspectionPart(outer.type?.code) || translateKorean(outer.type?.title || "")}
-                            </span>
-                            <div className="flex gap-2">
-                              {statuses.map((s: any) => {
-                                const status = translateInspectionStatus(s.code);
-                                return (
-                                  <span key={s.code} className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                    s.code === "X" ? "bg-red-100 text-red-800" :
-                                    s.code === "W" ? "bg-orange-100 text-orange-800" :
-                                    "bg-yellow-100 text-yellow-800"
-                                  }`}>
-                                    <span className="w-4 h-4 rounded-full bg-current opacity-20 flex items-center justify-center text-[10px]">
-                                      {status.icon}
-                                    </span>
-                                    {status.label}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Legend */}
-                    <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500">
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> X = Nderruar</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> W = Llamarine/Saldim</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span> C = Korrozion</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> A = Gervishje</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-purple-500 inline-block"></span> U = Siperfaqe e pabarabarte</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Diagnosis comments */}
-                {diagnosis?.items && (
-                  <>
-                    {diagnosis.items
-                      .filter((item: any) => item.name === "CHECKER_COMMENT" || item.name === "OUTER_PANEL_COMMENT")
-                      .map((item: any) => (
-                        <div key={item.code} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <div className="font-semibold text-blue-900 text-sm mb-1">
-                            {translatePartName(item.name)}
-                          </div>
-                          <div className="text-sm text-blue-800">
-                            {translateKorean(item.result)}
-                          </div>
-                        </div>
-                      ))}
-                  </>
                 )}
 
                 {/* Inspector name */}
