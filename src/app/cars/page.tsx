@@ -170,9 +170,9 @@ function SortSelect({ searchParams }: { searchParams: CarsPageProps["searchParam
   const sorts = [
     { value: "ModifiedDate", label: "Me te rejat" },
     { value: "PriceAsc", label: "Cmimi: ulet → larte" },
-    { value: "PriceDsc", label: "Cmimi: larte → ulet" },
+    { value: "PriceDesc", label: "Cmimi: larte → ulet" },
     { value: "MileageAsc", label: "Km me pak" },
-    { value: "YearDsc", label: "Viti me ri" },
+    { value: "Year", label: "Viti me ri" },
   ];
 
   return (
