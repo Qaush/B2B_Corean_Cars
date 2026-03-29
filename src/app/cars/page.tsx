@@ -46,7 +46,7 @@ async function getCars(searchParams: CarsPageProps["searchParams"]): Promise<Enc
   if (filters.minYear) conditions.push(`Year.range(${filters.minYear}00..)`);
   if (filters.maxMileage) conditions.push(`Mileage.range(..${filters.maxMileage})`);
 
-  const q = conditions.length === 1 ? `(And.${conditions[0]}.)` : `(And.${conditions.join(".")})`;
+  const q = `(And.${conditions.join("._.")}.)`;
   const sort = searchParams.sort || "ModifiedDate";
   const offset = searchParams.offset || "0";
   const sr = `|${sort}|${offset}|20`;
