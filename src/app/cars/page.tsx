@@ -100,7 +100,7 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
         {/* Results */}
         <div>
           {/* Sort - top of results */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
             <p className="text-sm text-gray-500">
               {totalCount > 0 && `Faqja ${currentPage} nga ${totalPages}`}
             </p>
@@ -176,7 +176,7 @@ function SortSelect({ searchParams }: { searchParams: CarsPageProps["searchParam
   ];
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
       {sorts.map((s) => {
         const p = new URLSearchParams(params);
         if (s.value !== "ModifiedDate") p.set("sort", s.value);
@@ -185,7 +185,7 @@ function SortSelect({ searchParams }: { searchParams: CarsPageProps["searchParam
           <Link
             key={s.value}
             href={`/cars?${p.toString()}`}
-            className={`hidden md:block text-xs px-3 py-1.5 rounded-full transition-colors ${
+            className={`whitespace-nowrap text-xs px-3 py-1.5 rounded-full transition-colors ${
               isActive ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
             }`}
           >
