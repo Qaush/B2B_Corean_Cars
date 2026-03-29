@@ -74,6 +74,7 @@ interface DetailData {
   accidentSummary: any;
   inspectionSummary: any;
   diagnosis: any;
+  performanceData: Record<string, string[] | null> | null;
 }
 
 const HEADERS = {
