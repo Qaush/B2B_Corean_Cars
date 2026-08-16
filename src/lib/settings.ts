@@ -2,9 +2,22 @@ import { prisma } from "./prisma";
 
 const DEFAULT_WHATSAPP = "38344647559";
 
+// After a database failure, skip further queries for a while so every
+// page render doesn't pay the connection-timeout penalty.
+const DB_RETRY_COOLDOWN_MS = 60_000;
+let dbFailedUntil = 0;
+
 export async function getSiteSetting(key: string): Promise<string | null> {
-  const setting = await prisma.siteSettings.findUnique({ where: { key } });
-  return setting?.value ?? null;
+  // The site must keep rendering with defaults when the database is
+  // unreachable (e.g. Supabase free-tier project paused after inactivity).
+  if (Date.now() < dbFailedUntil) return null;
+  try {
+    const setting = await prisma.siteSettings.findUnique({ where: { key } });
+    return setting?.value ?? null;
+  } catch {
+    dbFailedUntil = Date.now() + DB_RETRY_COOLDOWN_MS;
+    return null;
+  }
 }
 
 export async function getWhatsAppNumber(): Promise<string> {
