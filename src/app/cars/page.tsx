@@ -60,9 +60,11 @@ async function getCars(searchParams: CarsPageProps["searchParams"]): Promise<Enc
 
   try {
     const res = await fetch(url, { headers, next: { revalidate: 300 } });
-    if (res.ok) return res.json();
+    if (res.ok) return await res.json();
+    console.error("[cars] Encar HTTP", res.status);
     return null;
-  } catch {
+  } catch (error) {
+    console.error("[cars] Encar fetch failed", error);
     return null;
   }
 }

@@ -81,7 +81,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ count: data.Count, facets: result });
-  } catch {
+  } catch (error) {
+    console.error("[api/models] Encar fetch failed", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

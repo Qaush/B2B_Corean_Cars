@@ -19,9 +19,13 @@ async function getFeaturedCars(): Promise<EncarSearchResult | null> {
         next: { revalidate: 600 },
       }
     );
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
+    if (!res.ok) {
+      console.error("[home] Encar HTTP", res.status);
+      return null;
+    }
+    return await res.json();
+  } catch (error) {
+    console.error("[home] Encar fetch failed", error);
     return null;
   }
 }

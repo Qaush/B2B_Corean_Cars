@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!res.ok) {
+      console.error("[api/cars] Encar HTTP", res.status, (await res.text()).slice(0, 300));
       return NextResponse.json(
         { error: "Failed to fetch from Encar" },
         { status: res.status }
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (error) {
+    console.error("[api/cars] Encar fetch failed", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

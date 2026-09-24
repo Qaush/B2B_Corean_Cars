@@ -30,8 +30,12 @@ export async function GET(
           car = data.SearchResults[0];
           break;
         }
+      } else {
+        console.error("[api/cars/id] Encar HTTP", res.status, endpoint);
       }
-    } catch {}
+    } catch (error) {
+      console.error("[api/cars/id] Encar fetch failed", endpoint, error);
+    }
   }
 
   if (!car) {
