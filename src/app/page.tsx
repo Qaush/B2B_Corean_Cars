@@ -1,38 +1,14 @@
 import Link from "next/link";
-import CarCard from "@/components/CarCard";
 import HeroSearch from "@/components/HeroSearch";
 import TrustSection from "@/components/TrustSection";
-import {
-  EncarSearchResult,
-} from "@/lib/encar";
+import FeaturedCars, { CarCountStat } from "@/components/FeaturedCars";
 import { getWhatsAppNumber } from "@/lib/settings";
 
-async function getFeaturedCars(): Promise<EncarSearchResult | null> {
-  try {
-    const res = await fetch(
-      "https://api.encar.com/search/car/list/premium?count=true&q=(And.Hidden.N.)&sr=|ModifiedDate|0|8",
-      {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          Accept: "application/json",
-        },
-        next: { revalidate: 600 },
-      }
-    );
-    if (!res.ok) {
-      console.error("[home] Encar HTTP", res.status);
-      return null;
-    }
-    return await res.json();
-  } catch (error) {
-    console.error("[home] Encar fetch failed", error);
-    return null;
-  }
-}
+// Re-read the WhatsApp number from site settings every 10 minutes.
+export const revalidate = 600;
 
 export default async function Home() {
-  const [data, whatsappNumber] = await Promise.all([getFeaturedCars(), getWhatsAppNumber()]);
-  const cars = data?.SearchResults || [];
+  const whatsappNumber = await getWhatsAppNumber();
 
   return (
     <div>
@@ -66,7 +42,7 @@ export default async function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl md:text-4xl font-bold text-gray-900">
-                {data?.Count ? Math.floor(data.Count / 1000) + "K+" : "140K+"}
+                <CarCountStat />
               </div>
               <div className="text-sm text-gray-500 mt-1">Vetura te disponueshme</div>
             </div>
@@ -125,35 +101,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured Cars */}
-      {cars.length > 0 && (
-        <section className="py-14 md:py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between mb-10">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Veturat me te reja
-                </h2>
-                <p className="text-gray-400 mt-1">Listime te reja cdo dite</p>
-              </div>
-              <Link
-                href="/cars"
-                className="text-red-600 hover:text-red-700 font-medium flex items-center gap-1 text-sm"
-              >
-                Shiko te gjitha
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {cars.slice(0, 8).map((car) => (
-                <CarCard key={car.Id} car={car} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Featured Cars — loaded in the browser, Encar blocks Vercel's IPs */}
+      <FeaturedCars />
 
       {/* Trust Section */}
       <TrustSection />

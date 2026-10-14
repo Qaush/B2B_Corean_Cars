@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { translateModel, translateBadge, translateFuelType } from "@/lib/encar";
+import { getFacets } from "@/lib/encar-client";
 
 const MANUFACTURERS = [
   { value: "", label: "Te gjitha markat", group: "" },
@@ -63,9 +64,8 @@ export default function SearchFilters() {
   useEffect(() => {
     if (!manufacturer) { setModels([]); setBadges([]); return; }
     setLoadingModels(true);
-    fetch(`/api/models?manufacturer=${encodeURIComponent(manufacturer)}`)
-      .then((res) => res.json())
-      .then((data) => { setModels(data.facets?.ModelGroup || []); setBadges([]); })
+    getFacets(manufacturer)
+      .then((facets) => { setModels(facets.ModelGroup || []); setBadges([]); })
       .catch(() => setModels([]))
       .finally(() => setLoadingModels(false));
   }, [manufacturer]);
@@ -73,9 +73,8 @@ export default function SearchFilters() {
   useEffect(() => {
     if (!manufacturer || !model) { setBadges([]); return; }
     setLoadingBadges(true);
-    fetch(`/api/models?manufacturer=${encodeURIComponent(manufacturer)}&model=${encodeURIComponent(model)}`)
-      .then((res) => res.json())
-      .then((data) => setBadges(data.facets?.Badge || []))
+    getFacets(manufacturer, model)
+      .then((facets) => setBadges(facets.Badge || []))
       .catch(() => setBadges([]))
       .finally(() => setLoadingBadges(false));
   }, [manufacturer, model]);
