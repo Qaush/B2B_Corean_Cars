@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { CUSTOMS_RATE, TRANSPORT_COST, VAT_RATE } from "@/lib/encar";
 
 export default function ImportCalculator() {
   const { whatsappNumber } = useSiteSettings();
@@ -11,12 +12,13 @@ export default function ImportCalculator() {
 
   const priceNum = parseFloat(price) || 0;
   const yearNum = parseInt(year) || new Date().getFullYear();
-  const ccNum = parseInt(cc) || 0;
 
   const carAge = new Date().getFullYear() - yearNum;
-  const transport = 1500;
-  const customs = priceNum > 0 ? Math.round(priceNum * (ccNum > 2000 ? 0.15 : 0.10)) : 0;
-  const vat = Math.round((priceNum + customs + transport) * 0.18);
+  const transport = TRANSPORT_COST;
+  // Customs is charged on the value at the border (car + transport), at the
+  // same 10% for every engine size; VAT on that value plus customs.
+  const customs = priceNum > 0 ? Math.round((priceNum + transport) * CUSTOMS_RATE) : 0;
+  const vat = Math.round((priceNum + transport + customs) * VAT_RATE);
   const registration = carAge > 5 ? 150 : carAge > 3 ? 100 : 50;
   const total = priceNum + transport + customs + vat + registration;
 
@@ -76,7 +78,7 @@ export default function ImportCalculator() {
             <div className="space-y-3">
               <Row label="Cmimi i vetures" value={priceNum} />
               <Row label="Transporti (Korea → Kosove)" value={transport} />
-              <Row label={`Dogana (${ccNum > 2000 ? "15%" : "10%"})`} value={customs} />
+              <Row label="Dogana (10%)" value={customs} />
               <Row label="TVSH (18%)" value={vat} />
               <Row label="Regjistrimi" value={registration} />
               <div className="border-t border-gray-200 pt-3 mt-3 flex justify-between items-center">
@@ -88,7 +90,7 @@ export default function ImportCalculator() {
             </div>
 
             <p className="text-xs text-gray-400 mt-4">
-              * Ky eshte nje vleresim orientues. Kostot e sakta mund te ndryshojne.
+              * Ky eshte nje vleresim orientues, pa akcize (sipas moshes dhe motorrit). Kostot e sakta i konfirmon dogana.
             </p>
 
             <a

@@ -20,8 +20,9 @@ import {
   translateResultCode,
   translateInspectionPart,
   translateInspectionStatus,
-  TRANSPORT_COST,
+  krwToEur,
 } from "@/lib/encar";
+import { useExchangeRate } from "@/components/ExchangeRateProvider";
 import { CarDetailData, getCarDetail } from "@/lib/encar-client";
 import PhotoGallery from "@/components/PhotoGallery";
 import CarBodyDiagram from "@/components/CarBodyDiagram";
@@ -73,6 +74,7 @@ const OPTION_MAP: Record<string, string> = {
 export default function CarDetailView({ id, whatsappNumber }: { id: string; whatsappNumber: string }) {
   const [data, setData] = useState<CarDetailData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { rate: eurKrw, date: rateDate } = useExchangeRate();
 
   useEffect(() => {
     let cancelled = false;
@@ -126,7 +128,7 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
   const options = carsData?.base?.options?.standard || [];
   const detailPhotos = carsData?.base?.photos || [];
 
-  const { carPrice, transport, total } = getTotalPrice(car.Price);
+  const { carPrice, transport, total, customs, vat, totalKosovo } = getTotalPrice(car.Price, eurKrw);
   const carName = `${translateManufacturer(car.Manufacturer)} ${translateModel(car.Model)}`;
   const gradeName = category?.gradeEnglishName || `${translateBadge(car.Badge || "")} ${translateBadge(car.BadgeDetail || "")}`;
 
@@ -160,7 +162,7 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
   const color = colorMap[spec?.colorName] || translateKorean(spec?.colorName || "");
 
   const whatsappMessage = encodeURIComponent(
-    `Pershendetje! Jam i interesuar per: ${carName} ${car.FormYear}, ${formatMileage(car.Mileage)}, Cmimi: ${formatEur(total)}. A mund te me jepni me shume informata?`
+    `Pershendetje! Jam i interesuar per: ${carName} ${car.FormYear}, ${formatMileage(car.Mileage)}, Cmimi deri ne Durres: ${formatEur(total)} (pa dogane e TVSH). A mund te me jepni me shume informata?`
   );
 
   return (
@@ -243,7 +245,7 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
                       <div className="text-xs text-gray-600 mt-1">Aksidente (dami im)</div>
                       {accidentSummary.myAccidentCost > 0 && (
                         <div className="text-xs font-semibold text-red-500 mt-0.5">
-                          ~{Math.round(accidentSummary.myAccidentCost * 0.000573).toLocaleString("de-DE")} €
+                          ~{krwToEur(accidentSummary.myAccidentCost, eurKrw).toLocaleString("de-DE")} €
                         </div>
                       )}
                     </div>
@@ -256,7 +258,7 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
                       <div className="text-xs text-gray-600 mt-1">Aksidente (nga te tjeret)</div>
                       {accidentSummary.otherAccidentCost > 0 && (
                         <div className="text-xs font-semibold text-orange-500 mt-0.5">
-                          ~{Math.round(accidentSummary.otherAccidentCost * 0.000573).toLocaleString("de-DE")} €
+                          ~{krwToEur(accidentSummary.otherAccidentCost, eurKrw).toLocaleString("de-DE")} €
                         </div>
                       )}
                     </div>
@@ -284,7 +286,7 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
                       <div className="space-y-2">
                         {accidentSummary.accidents.map((acc: any, idx: number) => {
                           const totalKrw = (acc.partCost || 0) + (acc.laborCost || 0) + (acc.paintingCost || 0);
-                          const totalEur = Math.round(totalKrw * 0.000573);
+                          const totalEur = krwToEur(totalKrw, eurKrw);
                           return (
                             <div key={idx} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                               <div className="flex items-center justify-between mb-2">
@@ -296,15 +298,15 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
                               <div className="grid grid-cols-3 gap-2 text-xs">
                                 <div>
                                   <span className="text-gray-500">Pjese</span>
-                                  <div className="font-medium">{Math.round((acc.partCost || 0) * 0.000573)} €</div>
+                                  <div className="font-medium">{krwToEur(acc.partCost || 0, eurKrw)} €</div>
                                 </div>
                                 <div>
                                   <span className="text-gray-500">Punishtri</span>
-                                  <div className="font-medium">{Math.round((acc.laborCost || 0) * 0.000573)} €</div>
+                                  <div className="font-medium">{krwToEur(acc.laborCost || 0, eurKrw)} €</div>
                                 </div>
                                 <div>
                                   <span className="text-gray-500">Ngjyrosje</span>
-                                  <div className="font-medium">{Math.round((acc.paintingCost || 0) * 0.000573)} €</div>
+                                  <div className="font-medium">{krwToEur(acc.paintingCost || 0, eurKrw)} €</div>
                                 </div>
                               </div>
                               <div className="mt-2 pt-2 border-t border-gray-200 flex justify-between">
@@ -530,21 +532,45 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
               <h1 className="text-2xl font-bold text-gray-900 mb-1">{carName}</h1>
               <p className="text-gray-500 text-sm mb-4">{gradeName}</p>
 
-              <div className="bg-gray-900 rounded-xl p-5 mb-6">
-                <div className="text-sm text-gray-400 font-medium mb-1">Cmimi total</div>
+              <div className="bg-gray-900 rounded-xl p-5 mb-3">
+                <div className="text-sm text-gray-400 font-medium mb-1">Cmimi deri ne Durres</div>
                 <div className="text-4xl font-bold text-white">
                   {formatEur(total)}
                 </div>
                 <div className="mt-3 space-y-1 text-sm">
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-gray-400">
                     <span>Cmimi i vetures</span>
                     <span>{formatEur(carPrice)}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-gray-400">
                     <span>Transporti (Korea → Durres)</span>
                     <span>{formatEur(transport)}</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Kosovo import taxes, shown apart from the price */}
+              <div className="border border-gray-200 rounded-xl p-4 mb-6 text-sm">
+                <div className="font-medium text-gray-900 mb-2">Taksat e importit ne Kosove (vleresim)</div>
+                <div className="space-y-1 text-gray-600">
+                  <div className="flex justify-between">
+                    <span>Dogana (10%)</span>
+                    <span>{formatEur(customs)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>TVSH (18%)</span>
+                    <span>{formatEur(vat)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-100 pt-2 mt-2">
+                    <span>Totali i vleresuar ne Kosove</span>
+                    <span>{formatEur(totalKosovo)}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  Pa akcize (sipas moshes dhe motorrit) dhe regjistrim; shumat e sakta i konfirmon dogana.
+                  Kursi: 1 € = {new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 }).format(eurKrw)} KRW
+                  {rateDate ? ` (ECB, ${rateDate.split("-").reverse().join(".")})` : ""}.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-6 text-sm">

@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useExchangeRate } from "@/components/ExchangeRateProvider";
 import {
   formatEur,
   formatMileage,
@@ -207,7 +208,8 @@ function WishlistCard({
   onRemove: () => void;
 }) {
   const car = item.carData;
-  const { total } = getTotalPrice(car.price);
+  const { rate } = useExchangeRate();
+  const { total } = getTotalPrice(car.price, rate);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group">
@@ -250,7 +252,8 @@ function WishlistCard({
 
 function ReservationCard({ reservation, onCancel }: { reservation: ReservationItem; onCancel: () => void }) {
   const car = reservation.carData;
-  const { total } = getTotalPrice(car.price);
+  const { rate } = useExchangeRate();
+  const { total } = getTotalPrice(car.price, rate);
   const st = statusMap[reservation.status] || statusMap.pending;
 
   return (

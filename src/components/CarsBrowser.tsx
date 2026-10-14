@@ -9,15 +9,17 @@ import SearchFilters from "@/components/SearchFilters";
 import { EncarSearchResult } from "@/lib/encar";
 import { CarsFilters, buildCarsQuery, searchCars } from "@/lib/encar-client";
 import Link from "next/link";
+import { useExchangeRate } from "@/components/ExchangeRateProvider";
 
 export default function CarsBrowser({ searchParams }: { searchParams: CarsFilters }) {
   const [data, setData] = useState<EncarSearchResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const key = JSON.stringify(searchParams);
+  const { rate } = useExchangeRate();
+  const key = JSON.stringify(searchParams) + rate;
 
   useEffect(() => {
     const ctrl = new AbortController();
-    const { q, sr } = buildCarsQuery(searchParams);
+    const { q, sr } = buildCarsQuery(searchParams, rate);
     setLoading(true);
     searchCars(q, sr, { signal: ctrl.signal }).then((d) => {
       if (ctrl.signal.aborted) return;

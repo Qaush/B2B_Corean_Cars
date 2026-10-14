@@ -30,20 +30,48 @@ export interface EncarSearchResult {
   SearchResults: EncarCar[];
 }
 
-// KRW to EUR exchange rate (approximate, updated periodically)
-const KRW_TO_EUR = 0.000573; // ~1 EUR = 1,744 KRW (March 2026)
+// KRW per 1 EUR. The live value is the ECB reference rate, read once a day
+// (see lib/exchange-rate.ts); this is only the fallback when ECB is
+// unreachable. ECB 13.10.2026: 1 EUR = 1,500.81 KRW. (The old hardcoded
+// March rate of 1,744 showed every car ~14% cheaper than it really was.)
+export const DEFAULT_EUR_KRW = 1500.81;
 const MARKUP = 1.05; // 5% profit margin
 export const TRANSPORT_COST = 1500; // Transport Korea → Durres/Prishtine
+// Kosovo import taxes, shown separately as an estimate. Customs is charged
+// on the value at the border (car + transport), VAT on that plus customs.
+// Excise (by age and engine) and registration are not included.
+export const CUSTOMS_RATE = 0.1;
+export const VAT_RATE = 0.18;
 
-export function convertPriceToEur(priceInManWon: number): number {
-  const krw = priceInManWon * 10000;
-  const eur = krw * KRW_TO_EUR * MARKUP;
-  return Math.round(eur);
+export function krwToEur(krw: number, eurKrw: number = DEFAULT_EUR_KRW): number {
+  return Math.round(krw / eurKrw);
 }
 
-export function getTotalPrice(priceInManWon: number): { carPrice: number; transport: number; total: number } {
-  const carPrice = convertPriceToEur(priceInManWon);
-  return { carPrice, transport: TRANSPORT_COST, total: carPrice + TRANSPORT_COST };
+export function convertPriceToEur(priceInManWon: number, eurKrw: number = DEFAULT_EUR_KRW): number {
+  return Math.round(((priceInManWon * 10000) / eurKrw) * MARKUP);
+}
+
+export interface PriceBreakdown {
+  carPrice: number; // car in Korea, incl. our margin
+  transport: number;
+  total: number; // car + transport, delivered to Durres — without Kosovo taxes
+  customs: number;
+  vat: number;
+  totalKosovo: number; // estimate: total + customs + VAT (no excise/registration)
+}
+
+export function getTotalPrice(priceInManWon: number, eurKrw: number = DEFAULT_EUR_KRW): PriceBreakdown {
+  const carPrice = convertPriceToEur(priceInManWon, eurKrw);
+  const total = carPrice + TRANSPORT_COST;
+  const customs = Math.round(total * CUSTOMS_RATE);
+  const vat = Math.round((total + customs) * VAT_RATE);
+  return { carPrice, transport: TRANSPORT_COST, total, customs, vat, totalKosovo: total + customs + vat };
+}
+
+// Inverse of the delivered price (car + transport), for the EUR price filter:
+// returns the Encar price in 만원 whose delivered price equals `eur`.
+export function eurToManWon(eur: number, eurKrw: number = DEFAULT_EUR_KRW): number {
+  return Math.max(0, ((eur - TRANSPORT_COST) * eurKrw) / (MARKUP * 10000));
 }
 
 export function formatEur(eur: number): string {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useExchangeRate } from "@/components/ExchangeRateProvider";
 import { useState } from "react";
 import {
   formatEur,
@@ -35,6 +36,7 @@ const tabs = [
 ];
 
 export default function ReservationsTable({ initialData }: { initialData: Reservation[] }) {
+  const { rate } = useExchangeRate();
   const [data, setData] = useState(initialData);
   const [filter, setFilter] = useState("");
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
@@ -102,7 +104,7 @@ export default function ReservationsTable({ initialData }: { initialData: Reserv
               <tbody className="divide-y divide-gray-100">
                 {filtered.map((r) => {
                   const car = r.carData;
-                  const { total } = getTotalPrice(car.price);
+                  const { total } = getTotalPrice(car.price, rate);
                   const st = statusOptions.find((s) => s.value === r.status) || statusOptions[0];
 
                   return (

@@ -9,6 +9,7 @@ import {
   translateModel,
   translateFuelType,
 } from "@/lib/encar";
+import { getEurKrw } from "@/lib/exchange-rate";
 import { notFound } from "next/navigation";
 
 const statusMap: Record<string, { label: string; color: string }> = {
@@ -18,6 +19,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 };
 
 export default async function AdminUserDetailPage({ params }: { params: { id: string } }) {
+  const { rate: eurKrw } = await getEurKrw();
   await requireAdmin();
 
   const user = await prisma.user.findUnique({
@@ -73,7 +75,7 @@ export default async function AdminUserDetailPage({ params }: { params: { id: st
             <div className="space-y-3">
               {user.reservations.map((r) => {
                 const car = r.carData as any;
-                const { total } = getTotalPrice(car.price);
+                const { total } = getTotalPrice(car.price, eurKrw);
                 const st = statusMap[r.status] || statusMap.pending;
                 return (
                   <div key={r.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-3">
@@ -108,7 +110,7 @@ export default async function AdminUserDetailPage({ params }: { params: { id: st
             <div className="space-y-3">
               {user.wishlist.map((w) => {
                 const car = w.carData as any;
-                const { total } = getTotalPrice(car.price);
+                const { total } = getTotalPrice(car.price, eurKrw);
                 return (
                   <div key={w.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-3">
                     <img src={car.image} alt="" className="w-20 h-15 object-cover rounded-lg shrink-0" />

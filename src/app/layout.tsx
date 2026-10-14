@@ -6,6 +6,8 @@ import Footer from "@/components/Footer";
 import ContactButtons from "@/components/ContactButtons";
 import ChatWidget from "@/components/ChatWidget";
 import Providers from "@/components/Providers";
+import { ExchangeRateProvider } from "@/components/ExchangeRateProvider";
+import { getEurKrw } from "@/lib/exchange-rate";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,20 +22,23 @@ export const metadata: Metadata = {
   keywords: "vetura, korea, import, hyundai, kia, genesis, auto, makina",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const eurKrw = await getEurKrw();
   return (
     <html lang="sq" className={inter.variable}>
       <body className="font-sans">
         <Providers>
+          <ExchangeRateProvider value={eurKrw}>
           <Header />
           <main className="min-h-screen">{children}</main>
           <Footer />
           <ContactButtons />
           <ChatWidget />
+          </ExchangeRateProvider>
         </Providers>
       </body>
     </html>

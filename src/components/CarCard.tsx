@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   EncarCar,
@@ -12,13 +14,15 @@ import {
   translateBadge,
 } from "@/lib/encar";
 import WishlistButton from "./WishlistButton";
+import { useExchangeRate } from "./ExchangeRateProvider";
 
 interface CarCardProps {
   car: EncarCar;
 }
 
 export default function CarCard({ car }: CarCardProps) {
-  const { total } = getTotalPrice(car.Price);
+  const { rate } = useExchangeRate();
+  const { total } = getTotalPrice(car.Price, rate);
   const imageUrl = getMainImageUrl(car);
   const isLowKm = car.Mileage < 30000;
 
@@ -54,7 +58,7 @@ export default function CarCard({ car }: CarCardProps) {
           <span className="text-white text-xl font-bold drop-shadow-lg">
             {formatEur(total)}
           </span>
-          <span className="text-white/70 text-xs block">me transport</span>
+          <span className="text-white/70 text-xs block">me transport, pa dogane e TVSH</span>
         </div>
 
         {/* Badges */}

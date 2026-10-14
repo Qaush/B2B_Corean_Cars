@@ -5,7 +5,7 @@ import Link from "next/link";
 import CarCard from "@/components/CarCard";
 import CarCardSkeleton from "@/components/CarCardSkeleton";
 import { EncarSearchResult } from "@/lib/encar";
-import { searchCars } from "@/lib/encar-client";
+import { catalogQuery, searchCars } from "@/lib/encar-client";
 
 // Featured cars + live catalog count for the home page, loaded from the
 // visitor's browser (Encar blocks the Vercel servers' IPs).
@@ -14,7 +14,7 @@ function useLatestCars() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const ctrl = new AbortController();
-    searchCars("(And.Hidden.N.)", "|ModifiedDate|0|8", { signal: ctrl.signal })
+    searchCars(catalogQuery(), "|ModifiedDate|0|8", { signal: ctrl.signal })
       .then((d) => { if (!ctrl.signal.aborted) { setData(d); setLoading(false); } });
     return () => ctrl.abort();
   }, []);
@@ -25,7 +25,7 @@ export function CarCountStat() {
   const [count, setCount] = useState<number | null>(null);
   useEffect(() => {
     const ctrl = new AbortController();
-    searchCars("(And.Hidden.N.)", "|ModifiedDate|0|0", { signal: ctrl.signal })
+    searchCars(catalogQuery(), "|ModifiedDate|0|0", { signal: ctrl.signal })
       .then((d) => { if (!ctrl.signal.aborted && d?.Count) setCount(d.Count); });
     return () => ctrl.abort();
   }, []);

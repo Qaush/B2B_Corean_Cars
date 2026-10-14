@@ -5,7 +5,7 @@
 // browsers with `Access-Control-Allow-Origin: *`. So every catalog request is
 // made client-side, from the visitor's own IP, instead of from a server route.
 
-import { EncarCar, EncarSearchResult, isImportedBrand } from "./encar";
+import { EncarCar, EncarSearchResult, eurToManWon, isImportedBrand } from "./encar";
 
 const ENCAR = "https://api.encar.com";
 const PREMIUM = `${ENCAR}/search/car/list/premium`;
@@ -19,6 +19,18 @@ async function getJson<T = any>(url: string, signal?: AbortSignal): Promise<T | 
   } catch {
     return null;
   }
+}
+
+// Conditions every catalog query carries:
+// - SellType.일반: only regular sales. Lease (리스) and rental (렌트) listings
+//   can't be exported as-is and their price isn't the full purchase price.
+// - Price ≠ 9999: 9999만원 is the "call for price" placeholder, not a price.
+// Encar syntax: a plain term ends with "." and terms are joined with "_.".
+const CATALOG_TERMS = ["Hidden.N", "SellType.일반", "(Or.Price.range(..9998)._.Price.range(10000..).)"];
+
+export function catalogQuery(extra: string[] = []): string {
+  const terms = [...CATALOG_TERMS, ...extra].map((t) => (t.startsWith("(") ? t : `${t}.`));
+  return `(And.${terms.join("_.")})`;
 }
 
 export function searchCars(
@@ -45,20 +57,23 @@ export interface CarsFilters {
   offset?: string;
 }
 
-// Same query the server-rendered /cars page used to build.
-export function buildCarsQuery(f: CarsFilters): { q: string; sr: string } {
-  const conditions = ["Hidden.N"];
+// minPrice/maxPrice are in EUR as shown on the cards (car + transport);
+// Encar filters on its own price in 만원, so they are converted first.
+export function buildCarsQuery(f: CarsFilters, eurKrw: number): { q: string; sr: string } {
+  const conditions: string[] = [];
   if (f.manufacturer) conditions.push(`Manufacturer.${f.manufacturer}`);
   if (f.model) conditions.push(`ModelGroup.${f.model}`);
   if (f.badge) conditions.push(`Badge.${f.badge}`);
   if (f.fuelType) conditions.push(`FuelType.${f.fuelType}`);
-  const minPrice = f.minPrice ? parseInt(f.minPrice) : undefined;
-  const maxPrice = f.maxPrice ? parseInt(f.maxPrice) : undefined;
-  if (minPrice || maxPrice) conditions.push(`Price.range(${minPrice || ""}..${maxPrice || ""})`);
+  const minEur = f.minPrice ? parseInt(f.minPrice) : NaN;
+  const maxEur = f.maxPrice ? parseInt(f.maxPrice) : NaN;
+  const min = minEur > 0 ? Math.ceil(eurToManWon(minEur, eurKrw)) : undefined;
+  const max = maxEur > 0 ? Math.floor(eurToManWon(maxEur, eurKrw)) : undefined;
+  if (min !== undefined || max !== undefined) conditions.push(`Price.range(${min ?? ""}..${max ?? ""})`);
   if (f.minYear) conditions.push(`Year.range(${parseInt(f.minYear)}00..)`);
   if (f.maxMileage) conditions.push(`Mileage.range(..${parseInt(f.maxMileage)})`);
 
-  const q = `(And.${conditions.join("._.")}.)`;
+  const q = catalogQuery(conditions);
   const sr = `|${f.sort || "ModifiedDate"}|${f.offset || "0"}|20`;
   return { q, sr };
 }
@@ -68,19 +83,19 @@ export type Facets = Record<string, Array<{ value: string; count: number }>>;
 // Model/Badge facets for the search filters (formerly /api/models).
 export async function getFacets(manufacturer: string, model?: string): Promise<Facets> {
   const imported = isImportedBrand(manufacturer);
-  const conditions = ["Hidden.N"];
+  const conditions: string[] = [];
   if (imported) conditions.push("CarType.N");
   conditions.push(`Manufacturer.${manufacturer}`);
   if (model) conditions.push(`ModelGroup.${model}`);
 
-  const data: any = await searchCars(`(And.${conditions.join("._.")}.)`, "|ModifiedDate|0|0", {
+  const data: any = await searchCars(catalogQuery(conditions), "|ModifiedDate|0|0", {
     endpoint: imported ? GENERAL : PREMIUM,
     inav: model ? "|Metadata|Badge|FuelType|Transmission" : "|Metadata|ModelGroup|FuelType",
   });
 
   const result: Facets = {};
   for (const node of data?.iNav?.Nodes || []) {
-    if (node.Name === "Metadata" || node.Name === "Hidden" || node.Name === "CarType") continue;
+    if (["Metadata", "Hidden", "CarType", "SellType", "Price"].includes(node.Name)) continue;
 
     // Direct facets (non-selected items)
     const direct = (node.Facets || []).filter(
@@ -118,7 +133,8 @@ export interface CarDetailData {
 
 export async function getCarDetail(id: string): Promise<CarDetailData | null> {
   let car: EncarCar | null = null;
-  const q = `(And.Hidden.N._.CarId.${id}.)`;
+  // A lease/rental or "call for price" car is not found, like a sold one.
+  const q = catalogQuery([`CarId.${id}`]);
   for (const endpoint of [PREMIUM, GENERAL]) {
     const data = await searchCars(q, "|ModifiedDate|0|1", { endpoint });
     if (data?.SearchResults?.length) {

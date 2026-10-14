@@ -6,9 +6,11 @@ import {
   translateManufacturer,
   translateModel,
 } from "@/lib/encar";
+import { getEurKrw } from "@/lib/exchange-rate";
 import { StatusPieChart, PopularCarsChart } from "./DashboardCharts";
 
 export default async function AdminDashboard() {
+  const { rate: eurKrw } = await getEurKrw();
   const [totalUsers, totalReservations, totalWishlist, reservationsByStatus, recentReservations, popularCars] =
     await Promise.all([
       prisma.user.count(),
@@ -136,7 +138,7 @@ export default async function AdminDashboard() {
               <tbody className="divide-y divide-gray-50">
                 {recentReservations.map((r: any) => {
                   const car = r.carData as any;
-                  const { total } = getTotalPrice(car.price);
+                  const { total } = getTotalPrice(car.price, eurKrw);
                   const st = statusMap[r.status] || statusMap.pending;
                   return (
                     <tr key={r.id} className="hover:bg-gray-50 transition-colors">
