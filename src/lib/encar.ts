@@ -36,10 +36,11 @@ export interface EncarSearchResult {
 // March rate of 1,744 showed every car ~14% cheaper than it really was.)
 export const DEFAULT_EUR_KRW = 1500.81;
 const MARKUP = 1.05; // 5% profit margin
-export const TRANSPORT_COST = 1500; // Transport Korea → Durres/Prishtine
+export const TRANSPORT_COST = 1500; // Transport Korea → port of Durres (Durres → Kosovo is not included)
 // Kosovo import taxes, shown separately as an estimate. Customs is charged
 // on the value at the border (car + transport), VAT on that plus customs.
-// Excise (by age and engine) and registration are not included.
+// Excise (by age and engine), registration and the Durres → Kosovo leg are
+// not included.
 export const CUSTOMS_RATE = 0.1;
 export const VAT_RATE = 0.18;
 

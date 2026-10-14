@@ -16,7 +16,9 @@ RREGULLAT:
 
 INFORMATA PËR KOMPANINË:
 - Importojmë vetura direkt nga Korea e Jugut
-- Çmimet përfshijnë transportin deri në Kosovë/Shqipëri (1,500€)
+- Çmimet në faqe përfshijnë transportin nga Korea deri në portin e Durrësit (1,500€) dhe janë pa doganë e TVSH
+- Transporti Durrës → Kosovë NUK përfshihet në çmim
+- Taksat e importit në Kosovë paguhen veç: dogana 10% dhe TVSH 18% (vlerësimi del te faqja e veturës), plus akciza sipas moshës dhe motorrit; shumat e sakta i konfirmon dogana
 - Pagesa: para në dorë ose transfer bankar
 - Dorëzimi: 3-5 javë
 - Të gjitha veturat kanë historik aksidentesh dhe inspektim

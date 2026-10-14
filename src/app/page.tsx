@@ -27,7 +27,7 @@ export default async function Home() {
               <span className="text-gray-400">me cmimin me te mire</span>
             </h1>
             <p className="text-lg text-gray-500 max-w-xl mx-auto">
-              Zgjidhni nga mijera vetura te inspektuara. Cmime transparente, transport i perfshire.
+              Zgjidhni nga mijera vetura te inspektuara. Cmime transparente, transport deri ne Durres i perfshire.
             </p>
           </div>
 
@@ -52,7 +52,7 @@ export default async function Home() {
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold text-gray-900">1,500€</div>
-              <div className="text-sm text-gray-500 mt-1">Transport i perfshire</div>
+              <div className="text-sm text-gray-500 mt-1">Transport deri ne Durres</div>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold text-gray-900">3-5</div>

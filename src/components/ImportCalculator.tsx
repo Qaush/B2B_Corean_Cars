@@ -77,7 +77,7 @@ export default function ImportCalculator() {
             <h3 className="font-semibold text-gray-900 mb-4">Zberthimi i kostos</h3>
             <div className="space-y-3">
               <Row label="Cmimi i vetures" value={priceNum} />
-              <Row label="Transporti (Korea → Kosove)" value={transport} />
+              <Row label="Transporti (Korea → Durres)" value={transport} />
               <Row label="Dogana (10%)" value={customs} />
               <Row label="TVSH (18%)" value={vat} />
               <Row label="Regjistrimi" value={registration} />
@@ -90,7 +90,7 @@ export default function ImportCalculator() {
             </div>
 
             <p className="text-xs text-gray-400 mt-4">
-              * Ky eshte nje vleresim orientues, pa akcize (sipas moshes dhe motorrit). Kostot e sakta i konfirmon dogana.
+              * Ky eshte nje vleresim orientues, pa akcize (sipas moshes dhe motorrit) dhe pa transportin Durres → Kosove. Kostot e sakta i konfirmon dogana.
             </p>
 
             <a

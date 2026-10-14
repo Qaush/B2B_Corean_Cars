@@ -567,7 +567,7 @@ export default function CarDetailView({ id, whatsappNumber }: { id: string; what
                   </div>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">
-                  Pa akcize (sipas moshes dhe motorrit) dhe regjistrim; shumat e sakta i konfirmon dogana.
+                  Pa transportin Durres → Kosove, pa akcize (sipas moshes dhe motorrit) dhe regjistrim; shumat e sakta i konfirmon dogana.
                   Kursi: 1 € = {new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 }).format(eurKrw)} KRW
                   {rateDate ? ` (ECB, ${rateDate.split("-").reverse().join(".")})` : ""}.
                 </p>
